@@ -1408,25 +1408,26 @@ function getQualityDesc(){const q={mobile:'手机原相机拍摄质感，轻微�
 function getPhotoTypeDesc(){const type=document.getElementById('photoType').value;const p={static:'静态照片，画面清晰锐利，人物静止摆拍，没有运动模糊，焦点清晰',live:'Live Photo实况照片质感，动态抓拍的自然瞬间，人物正在自然微动（眨眼、呼吸、头发轻微飘动、手指微动），有极轻微的动态模糊，像手机实况照片捕捉的真实瞬间，完全不摆拍，自然生动',burst:'高速连拍抓拍照，动感瞬间，人物动作正在进行中，有自然的运动模糊和动态感，表情生动真实，像抓拍到的不经意瞬间，有轻微的肢体拖影',longexposure:'长曝光拍摄效果，有光影拖尾和动态光轨，光线有流动感，人物边缘有轻微拖影和虚化，艺术氛围感强，画面有时间流逝感'};return p[type]||p.static;}
 function getNoPersonSceneDesc(){const carrier=document.getElementById('noPersonCarrier').value,angle=document.getElementById('noPersonAngle').value,props=document.getElementById('noPersonProps').value;const carriers={desknote:'一张米白色便签纸平放在桌面上，上面手写着文字',notebook:'一本翻开的笔记本，页面上手写着文字，笔记本有使用痕迹',blackboard:'一块黑板/白板，上面用粉笔/马克笔手写着文字',stickynote:'一张彩色便利贴贴在墙上/冰箱门上，上面手写着文字',letter:'一张复古信纸平放在桌面上，上面手写着文字，信纸有折痕',wallpaper:'一张手写纸条用图钉钉在墙上，纸张有自然卷曲',coffeecup:'一张手写小卡片放在咖啡杯旁边，卡片上写着文字',bookmark:'一枚手写书签夹在翻开的书本里，书签上写着文字',mirror:'一面镜子上贴着便签纸/或用口红写着字',window:'窗户玻璃上用马克笔手写着文字，窗外有虚化景色'};const angles={topdown:'俯拍视角，从正上方往下拍',front:'正面平视拍摄',side:'侧面拍摄',closeup:'特写镜头，聚焦在文字上，浅景深',angle45:'45度斜角拍摄'};const propsDesc={coffee:'旁边放着一杯咖啡和金属勺子',plant:'旁边有一盆小盆栽和绿色植物',book:'旁边放着一本打开的书和一副眼镜',phone:'旁边放着一部手机和有线耳机',flower:'旁边有一束干花和玻璃花瓶',snack:'旁边放着零食和一杯饮料',pen:'旁边放着一支钢笔和墨水瓶',clean:'桌面干净，没有其他杂物'};return `${carriers[carrier]||carriers.desknote}，${angles[angle]||angles.angle45}，${propsDesc[props]||propsDesc.clean}。`;}
 function getNegativePrompt(){
-  const type=document.getElementById('personType').value,skin=selectedSkin,photoType=document.getElementById('photoType').value;
+  const type=document.getElementById('personType').value,skin=selectedSkin;
   let neg=[
-    'AI脸','塑料皮肤','假脸','过度磨皮','皮肤过于光滑','完美对称脸','美颜滤镜','精修图','瓷娃娃皮肤',
-    '蜡像感','硅胶质感','玩偶脸','充气娃娃','人皮面具','假人','模特人偶','芭比娃娃脸','SD生成脸','AI生成人像',
-    '死鱼眼','眼神空洞','没有眼神光','瞳孔无神','眼睛像玻璃珠','不眨眼','眼睛太完美','眼睛过大',
-    '皮肤像蜡','皮肤像塑料','皮肤像硅胶','油光满面','不自然的光泽','皮肤没有纹理','皮肤太干净','皮肤零瑕疵',
-    '文字错误','错别字','乱码','文字扭曲','多余文字','缺少文字','文字模糊','文字无法辨认','文字重复','文字印刷体','文字太工整','文字太规整','文字像电脑字体','文字像宋体','文字像黑体','文字排列整齐',
-    '多余手指','缺少手指','畸形的手','多余肢体','身体比例错误','解剖结构错误','手指粘连','手指数量不对','手指太细','手指关节错误','手指太完美',
-    '低质量','模糊','像素化','压缩痕迹','水印','签名','logo','画面裁切','主体出框','过曝','欠曝',
-    '卡通','动漫','3D渲染','插画','油画','素描','手绘','CG特效','数字艺术','二次元','游戏画面','渲染图',
-    '不自然的皮肤','完美无瑕','没有毛孔','没有汗毛','没有细纹','皮肤像婴儿','过度美颜','瘦脸滤镜','皮肤太白','皮肤太细腻',
-    '头发像塑料','头发不自然','头发一缕一缕','假发','头发没有发丝感','头发太整齐','头发太顺滑',
-    '纸板变形','纸板弯曲','纸板透视错误','纸板漂浮','纸板不平整',
-    '姿势僵硬','摆拍感太强','表情不自然','假笑','表情僵硬','肢体扭曲','姿势太完美',
-    '专业摄影感','影棚打光','商业修图','杂志封面感','大片感','过于精致','过于完美','过度锐化','高动态范围','HDR感'
+    // ===== 人物真实感 =====
+    'AI脸','塑料皮肤','假脸','过度磨皮','皮肤过于光滑','完美对称脸','美颜滤镜','瓷娃娃皮肤',
+    '蜡像感','硅胶质感','玩偶脸','充气娃娃','人皮面具','假人','模特人偶','芭比娃娃脸','AI生成人像','SD生成脸',
+    '死鱼眼','眼神空洞','没有眼神光','瞳孔无神','眼睛像玻璃珠',
+    '皮肤像蜡','皮肤像塑料','皮肤像硅胶','不自然的光泽','皮肤没有纹理','皮肤太干净','皮肤零瑕疵','皮肤太白','皮肤太细腻',
+    '完美无瑕','没有毛孔','没有汗毛','没有细纹','皮肤像婴儿','过度美颜','瘦脸滤镜',
+    '头发像塑料','头发不自然','头发一缕一缕','假发','头发太整齐','头发太顺滑',
+    '姿势僵硬','摆拍感太强','表情不自然','假笑','表情僵硬',
+    '专业摄影感','影棚打光','商业修图','杂志封面感','大片感','过于精致','过于完美','过度锐化','HDR感',
+    // ===== 手写真实感 =====
+    '文字印刷体','文字太工整','文字太规整','文字像电脑字体','文字像宋体','文字像黑体','文字排列整齐','文字大小一致','文字过于清晰','文字没有手写感',
+    '文字错误','错别字','乱码','文字扭曲','多余文字','缺少文字','文字漏字','文字少字',
+    // ===== 基础 =====
+    '多余手指','缺少手指','畸形的手','手指粘连','手指数量不对',
+    '卡通','动漫','3D渲染','插画','CG特效','数字艺术','二次元','渲染图'
   ];
   if(skin==='hyperreal'||skin==='natural')neg.push('皮肤过于光滑','完美无瑕皮肤','没有毛孔');
   if(type==='elderly'||type==='middleage')neg.push('年轻的脸','没有皱纹','婴儿皮肤','光滑的脸');
-  if(photoType==='static')neg.push('运动模糊','脸部模糊');
   if(currentMode==='person')neg.push('多余的手','畸形的手臂','手指数量错误','纸板漂浮');
   neg=[...new Set(neg)];
   return neg.join('，');
@@ -1438,31 +1439,32 @@ function adaptPrompt(prompt,tool){
 function generate(){
   const rawText=document.getElementById('textInput').value.trim();
   if(!rawText){alert('请先输入文字内容');return;}
-  const groups=rawText.split(/\n\s*\n/).filter(g=>g.trim()),tool=document.getElementById('aiTool').value,ratio=document.getElementById('ratio').value;
+  const tool=document.getElementById('aiTool').value,ratio=document.getElementById('ratio').value;
   const outSec=document.getElementById('outputSection'),outArea=document.getElementById('outputArea');
   outArea.innerHTML='';outSec.style.display='block';
-  let commonScene='';
+  // 整个输入作为一张纸板的内容，不按空行分割
+  const lines=rawText.split('\n').filter(l=>l.trim()),lc=lines.length;
+  let textContent='';
+  lines.forEach((line,i)=>{textContent+=`"${line.trim()}"`+(i<lc-1?'，':'。');});
+  // 文字内容放最前面
+  let textHead=`纸板上用${getPenDesc()}手写着以下文字（纸板上只有这些文字，必须完整准确显示每一个字，不能漏字不能少字不能错字）：${textContent}`;
+  let personPart='';
   if(currentMode==='person'){
     const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),poseDesc=getPoseDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
-    commonScene=`真实手机随手拍，不是专业摄影，${personDesc}，${clothingDesc}，${framingDesc}，头发自然有些凌乱有碎发，皮肤有自然纹理和小瑕疵不完美，${pronoun}站在室内，双手举着一张${getPaperDesc()}，纸板位于画面中央正对着镜头，手指自然握着纸板，${poseDesc}。纸板上手写的文字内容必须完整准确显示，不能漏字不能错字不能变字：`;
-  }else{commonScene=`真实手机随手拍，不是专业摄影，${getNoPersonSceneDesc()}手写的文字内容必须完整准确显示，不能漏字不能错字不能变字：`;}
-  const commonTail=`手写风格像普通人随手写的便签，字大小不一、歪歪扭扭、排列不整齐不在一条线上、下笔有轻有重、有的字粗有的字细、有涂改和重描痕迹、墨水不匀有飞白、字间距不均匀，完全不是印刷体不是规整字体不是AI生成的工整文字。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影不刻意打光，有生活气息，画面不完美但真实，${ratio}竖幅`;
-  groups.forEach((group,idx)=>{
-    const lines=group.split('\n').filter(l=>l.trim()),lc=lines.length;let tc='';
-    lines.forEach((line,i)=>{tc+=`第${i+1}行："${line.trim()}"。`;});
-    const textPart=`${tc}以上文字用${getPenDesc()}写在纸板上，${getHandwritingDetail()}`;
-    let prompt=adaptPrompt(commonScene+textPart+commonTail,tool);
-    const negPrompt=getNegativePrompt();
-    const item=document.createElement('div');item.className='output-item';
-    item.innerHTML=`<div class="output-label">📝 第${idx+1}条（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'} · ${tool==='midjourney'?'Midjourney':tool==='sd'?'SD':'中文AI'}）</div>
-      <div class="output-label" style="color:#90cdf4;font-size:11px">⬇️ 正向提示词（Positive Prompt）</div>
-      <div class="output-area prompt-text">${prompt}</div>
-      <button class="copy-btn" onclick="copyText(this,'.prompt-text')">复制正向词</button>
-      <div class="neg-label">⬇️ 负面提示词（Negative Prompt）— 复制到AI工具的负面框里</div>
-      <div class="neg-area neg-text">${negPrompt}</div>
-      <button class="copy-btn" onclick="copyText(this,'.neg-text')">复制负面词</button>`;
-    outArea.appendChild(item);
-  });
+    personPart=`真实手机随手拍，不是专业摄影，${personDesc}，${clothingDesc}，${framingDesc}，头发自然有些凌乱，皮肤有自然纹理和小瑕疵不完美，${pronoun}站在室内，双手举着这张${getPaperDesc()}，纸板位于画面中央正对着镜头，${poseDesc}。`;
+  }else{personPart=`真实手机随手拍，不是专业摄影，${getNoPersonSceneDesc()}`;}
+  const styleTail=`手写风格像普通人随手写的便签，字歪歪扭扭大小不一，排列不整齐，下笔有轻有重，有涂改痕迹，墨水不匀，完全不是印刷体不是规整字体。${getHandwritingDetail()}${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影，有生活气息，不完美但真实，${ratio}竖幅`;
+  const prompt=adaptPrompt(textHead+personPart+styleTail,tool);
+  const negPrompt=getNegativePrompt();
+  const item=document.createElement('div');item.className='output-item';
+  item.innerHTML=`<div class="output-label">📝 生成结果（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'} · ${tool==='midjourney'?'Midjourney':tool==='sd'?'SD':'中文AI'}）</div>
+    <div class="output-label" style="color:#90cdf4;font-size:11px">⬇️ 正向提示词（Positive Prompt）</div>
+    <div class="output-area prompt-text">${prompt}</div>
+    <button class="copy-btn" onclick="copyText(this,'.prompt-text')">复制正向词</button>
+    <div class="neg-label">⬇️ 负面提示词（Negative Prompt）— 复制到AI工具的负面框里</div>
+    <div class="neg-area neg-text">${negPrompt}</div>
+    <button class="copy-btn" onclick="copyText(this,'.neg-text')">复制负面词</button>`;
+  outArea.appendChild(item);
   outSec.scrollIntoView({behavior:'smooth'});
 }
 function generateBatch(count){
@@ -1476,34 +1478,34 @@ function generateBatch(count){
   ];
   const outSec=document.getElementById('outputSection'),outArea=document.getElementById('outputArea');
   outArea.innerHTML='';outSec.style.display='block';
-  const groups=rawText.split(/\n\s*\n/).filter(g=>g.trim()),tool=document.getElementById('aiTool').value,ratio=document.getElementById('ratio').value;
+  const tool=document.getElementById('aiTool').value,ratio=document.getElementById('ratio').value;
+  // 整个输入作为一张纸板的内容
+  const lines=rawText.split('\n').filter(l=>l.trim()),lc=lines.length;
+  let textContent='';
+  lines.forEach((line,i)=>{textContent+=`"${line.trim()}"`+(i<lc-1?'，':'。');});
   for(let a=0;a<count;a++){
     const ang=angles[a%angles.length];
     document.getElementById('pose').value=ang.pose;
     document.getElementById('eyeline').value=ang.eye;
     document.getElementById('framing').value=ang.frame;
-    let commonScene='';
+    const textHead=`纸板上用${getPenDesc()}手写着以下文字（纸板上只有这些文字，必须完整准确显示每一个字，不能漏字不能少字不能错字）：${textContent}`;
+    let personPart='';
     if(currentMode==='person'){
       const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
-      commonScene=`真实手机随手拍，不是专业摄影，${personDesc}，${clothingDesc}，${framingDesc}，头发自然有些凌乱有碎发，皮肤有自然纹理和小瑕疵不完美，${pronoun}站在室内，双手举着一张${getPaperDesc()}，纸板位于画面中央正对着镜头，手指自然握着纸板，${ang.desc}。纸板上手写的文字内容必须完整准确显示，不能漏字不能错字不能变字：`;
-    }else{commonScene=`真实手机随手拍，不是专业摄影，${getNoPersonSceneDesc()}手写的文字内容必须完整准确显示，不能漏字不能错字不能变字：`;}
-    const commonTail=`以上文字用${getPenDesc()}写在纸板上，${getHandwritingDetail()}手写风格像普通人随手写的便签，字大小不一、歪歪扭扭、排列不整齐不在一条线上、下笔有轻有重、有的字粗有的字细、有涂改和重描痕迹、墨水不匀有飞白、字间距不均匀，完全不是印刷体不是规整字体不是AI生成的工整文字。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影不刻意打光，有生活气息，画面不完美但真实，${ratio}竖幅`;
-    groups.forEach((group,idx)=>{
-      const lines=group.split('\n').filter(l=>l.trim()),lc=lines.length;let tc='';
-      lines.forEach((line,i)=>{tc+=`第${i+1}行："${line.trim()}"。`;});
-      const textPart=`${tc}`;
-      let prompt=adaptPrompt(commonScene+textPart+commonTail,tool);
-      const negPrompt=getNegativePrompt();
-      const item=document.createElement('div');item.className='output-item';
-      item.innerHTML=`<div class="output-label">📸 第${a+1}组·${ang.name}（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'}）</div>
-        <div class="output-label" style="color:#90cdf4;font-size:11px">⬇️ 正向提示词（Positive Prompt）</div>
-        <div class="output-area prompt-text">${prompt}</div>
-        <button class="copy-btn" onclick="copyText(this,'.prompt-text')">复制正向词</button>
-        <div class="neg-label">⬇️ 负面提示词（Negative Prompt）— 复制到AI工具的负面框里</div>
-        <div class="neg-area neg-text">${negPrompt}</div>
-        <button class="copy-btn" onclick="copyText(this,'.neg-text')">复制负面词</button>`;
-      outArea.appendChild(item);
-    });
+      personPart=`真实手机随手拍，不是专业摄影，${personDesc}，${clothingDesc}，${framingDesc}，头发自然有些凌乱，皮肤有自然纹理和小瑕疵不完美，${pronoun}站在室内，双手举着这张${getPaperDesc()}，纸板位于画面中央正对着镜头，${ang.desc}。`;
+    }else{personPart=`真实手机随手拍，不是专业摄影，${getNoPersonSceneDesc()}`;}
+    const styleTail=`手写风格像普通人随手写的便签，字歪歪扭扭大小不一，排列不整齐，下笔有轻有重，有涂改痕迹，墨水不匀，完全不是印刷体不是规整字体。${getHandwritingDetail()}${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影，有生活气息，不完美但真实，${ratio}竖幅`;
+    const prompt=adaptPrompt(textHead+personPart+styleTail,tool);
+    const negPrompt=getNegativePrompt();
+    const item=document.createElement('div');item.className='output-item';
+    item.innerHTML=`<div class="output-label">📸 第${a+1}组·${ang.name}（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'}）</div>
+      <div class="output-label" style="color:#90cdf4;font-size:11px">⬇️ 正向提示词（Positive Prompt）</div>
+      <div class="output-area prompt-text">${prompt}</div>
+      <button class="copy-btn" onclick="copyText(this,'.prompt-text')">复制正向词</button>
+      <div class="neg-label">⬇️ 负面提示词（Negative Prompt）— 复制到AI工具的负面框里</div>
+      <div class="neg-area neg-text">${negPrompt}</div>
+      <button class="copy-btn" onclick="copyText(this,'.neg-text')">复制负面词</button>`;
+    outArea.appendChild(item);
   }
   document.getElementById('pose').value=oldPose;document.getElementById('eyeline').value=oldEye;document.getElementById('framing').value=oldFrame;
   outSec.scrollIntoView({behavior:'smooth'});

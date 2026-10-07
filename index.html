@@ -1451,13 +1451,13 @@ function generate(){
   let textContent='';
   lines.forEach((line,i)=>{textContent+=`"${line.trim()}"`+(i<lc-1?'，':'。');});
   // 文字内容放最前面
-  let textHead=`特写纸板上刚刚用${getPenDesc()}手写的文字，墨水还微微发亮没干透，笔画有粗有细有毛边有笔锋，字写得歪歪扭扭大小不一，像随手写的便签，真人手写真实自然，不是印刷体不是电脑字体，纸板上只有以下文字必须完整显示：${textContent}`;
+  let textHead=`纸板上用${getPenDesc()}写着以下文字，纸板上只有这些文字，必须完整准确显示每一个字，不能漏字不能少字不能错字：${textContent}`;
   let personPart='';
   if(currentMode==='person'){
     const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),poseDesc=getPoseDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
     personPart=`真实手机随手拍，${personDesc}，${clothingDesc}，${framingDesc}，头发自然凌乱，皮肤有纹理和小瑕疵，${pronoun}站在室内双手举着这张${getPaperDesc()}，纸板在画面中央正对着镜头，${poseDesc}。`;
   }else{personPart=`真实手机随手拍，${getNoPersonSceneDesc()}`;}
-  const styleTail=`手写文字清晰可读，字间距大排列松散每行高低错落，有书写痕迹和涂改，墨水饱满黑色。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机拍摄自然光影有生活气息，真实不做作，${ratio}竖幅`;
+  const styleTail=`手写风格完全模仿真人随手写的便签，字写得歪歪扭扭，每个字大小都不一样有的大有的小；排列不整齐每行高低左右错开不在一条直线上；下笔力度不一样有的字重有的字轻，笔画有粗有细起笔重收笔轻；有涂改和重描痕迹有的字描了好几遍；墨水浓度不均匀有飞白断墨洇染；字间距不均匀有的挤在一起有的分开很远；整体有书写的节奏和呼吸感，完全不工整不规整，有真实手写的温度和不完美感，绝对不是印刷体不是电脑字体不是AI生成的工整文字。下笔轻重差异非常明显，每个字用力都不一样，有的字几乎刻进纸里有的字轻飘飘；字的大小差异非常大，每个字大小都不同，重要的字写得特别大；每个字倾斜明显，角度方向完全随机，有的字甚至歪得快倒了；排列非常随意混乱，每行位置完全不规律，有的字甚至写出了行；部分笔画有重描和涂改痕迹，个别字潦草有连笔；少量字有连笔，相邻的字笔画连在一起；有较多飞白、断墨、墨水不匀、洇染的痕迹，有的地方墨水没出墨；字间距非常不均匀，完全随机，有的字重叠有的字隔很远。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机拍摄自然光影有生活气息，真实不做作，${ratio}竖幅`;
   const prompt=adaptPrompt(textHead+personPart+styleTail,tool);
   const item=document.createElement('div');item.className='output-item';
   item.innerHTML=`<div class="output-label">📝 生成结果（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'}）</div>

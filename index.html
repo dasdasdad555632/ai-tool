@@ -1411,17 +1411,18 @@ function getNegativePrompt(){
   const type=document.getElementById('personType').value,skin=selectedSkin,photoType=document.getElementById('photoType').value;
   let neg=[
     'AI脸','塑料皮肤','假脸','过度磨皮','皮肤过于光滑','完美对称脸','美颜滤镜','精修图','瓷娃娃皮肤',
-    '蜡像感','硅胶质感','玩偶脸','充气娃娃','人皮面具','假人','模特人偶','芭比娃娃脸',
-    '死鱼眼','眼神空洞','没有眼神光','瞳孔无神','眼睛像玻璃珠','不眨眼',
-    '皮肤像蜡','皮肤像塑料','皮肤像硅胶','油光满面','不自然的光泽','皮肤没有纹理',
-    '文字错误','错别字','乱码','文字扭曲','多余文字','缺少文字','文字模糊','文字无法辨认','文字重复','文字印刷体','文字太工整',
-    '多余手指','缺少手指','畸形的手','多余肢体','身体比例错误','解剖结构错误','手指粘连','手指数量不对','手指太细','手指关节错误',
+    '蜡像感','硅胶质感','玩偶脸','充气娃娃','人皮面具','假人','模特人偶','芭比娃娃脸','SD生成脸','AI生成人像',
+    '死鱼眼','眼神空洞','没有眼神光','瞳孔无神','眼睛像玻璃珠','不眨眼','眼睛太完美','眼睛过大',
+    '皮肤像蜡','皮肤像塑料','皮肤像硅胶','油光满面','不自然的光泽','皮肤没有纹理','皮肤太干净','皮肤零瑕疵',
+    '文字错误','错别字','乱码','文字扭曲','多余文字','缺少文字','文字模糊','文字无法辨认','文字重复','文字印刷体','文字太工整','文字太规整','文字像电脑字体','文字像宋体','文字像黑体','文字排列整齐',
+    '多余手指','缺少手指','畸形的手','多余肢体','身体比例错误','解剖结构错误','手指粘连','手指数量不对','手指太细','手指关节错误','手指太完美',
     '低质量','模糊','像素化','压缩痕迹','水印','签名','logo','画面裁切','主体出框','过曝','欠曝',
     '卡通','动漫','3D渲染','插画','油画','素描','手绘','CG特效','数字艺术','二次元','游戏画面','渲染图',
-    '不自然的皮肤','完美无瑕','没有毛孔','没有汗毛','没有细纹','皮肤像婴儿','过度美颜','瘦脸滤镜',
-    '头发像塑料','头发不自然','头发一缕一缕','假发','头发没有发丝感',
+    '不自然的皮肤','完美无瑕','没有毛孔','没有汗毛','没有细纹','皮肤像婴儿','过度美颜','瘦脸滤镜','皮肤太白','皮肤太细腻',
+    '头发像塑料','头发不自然','头发一缕一缕','假发','头发没有发丝感','头发太整齐','头发太顺滑',
     '纸板变形','纸板弯曲','纸板透视错误','纸板漂浮','纸板不平整',
-    '姿势僵硬','摆拍感太强','表情不自然','假笑','表情僵硬','肢体扭曲'
+    '姿势僵硬','摆拍感太强','表情不自然','假笑','表情僵硬','肢体扭曲','姿势太完美',
+    '专业摄影感','影棚打光','商业修图','杂志封面感','大片感','过于精致','过于完美','过度锐化','高动态范围','HDR感'
   ];
   if(skin==='hyperreal'||skin==='natural')neg.push('皮肤过于光滑','完美无瑕皮肤','没有毛孔');
   if(type==='elderly'||type==='middleage')neg.push('年轻的脸','没有皱纹','婴儿皮肤','光滑的脸');
@@ -1443,15 +1444,13 @@ function generate(){
   let commonScene='';
   if(currentMode==='person'){
     const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),poseDesc=getPoseDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
-    commonScene=`真实照片，${personDesc}，${clothingDesc}，${framingDesc}，头发有自然碎发和发丝纹理，发根到发尾有自然的颜色渐变和光泽，眼睛有清澈的眼神光和环境倒影，睫毛根根分明，眉毛有自然的毛流感，嘴唇有自然的唇纹和水润感，面部有细微的绒毛和皮肤纹理，${pronoun}站在室内，双手举着一张${getPaperDesc()}（A3大小），纸板位于画面中央，文字正对着镜头，手指自然弯曲握住纸板边缘，指甲有自然的甲床和半月痕，手部皮肤有纹理和青筋，${poseDesc}。`;
-  }else{commonScene=`真实照片，${getNoPersonSceneDesc()}`;}
-  const commonTail=`${getBgDesc()}。${getLightDesc()}。居中构图，竖版，${getQualityDesc()}，${getPhotoTypeDesc()}，50mm标准镜头f/1.8大光圈全画幅拍摄，浅景深背景自然虚化，焦点精确落在人物面部和纸板文字上，自然色彩还原不夸张调色，保留真实肤色和环境色，头发丝根根分明有自然光泽，衣服面料纹理清晰可见，皮肤有自然的光影过渡和细微光泽，眼睛有眼神光和环境反射，画面有真实摄影的空气感和层次感，自然真实不做作，有生活气息，绝非AI生成的塑料感，${ratio}竖幅`;
+    commonScene=`真实手机随手拍，不是专业摄影，${personDesc}，${clothingDesc}，${framingDesc}，头发自然有些凌乱有碎发，皮肤有自然纹理和小瑕疵不完美，${pronoun}站在室内，双手举着一张${getPaperDesc()}，纸板位于画面中央正对着镜头，手指自然握着纸板，${poseDesc}。纸板上手写的文字内容必须完整准确显示，不能漏字不能错字不能变字：`;
+  }else{commonScene=`真实手机随手拍，不是专业摄影，${getNoPersonSceneDesc()}手写的文字内容必须完整准确显示，不能漏字不能错字不能变字：`;}
+  const commonTail=`手写风格像普通人随手写的便签，字大小不一、歪歪扭扭、排列不整齐不在一条线上、下笔有轻有重、有的字粗有的字细、有涂改和重描痕迹、墨水不匀有飞白、字间距不均匀，完全不是印刷体不是规整字体不是AI生成的工整文字。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影不刻意打光，有生活气息，画面不完美但真实，${ratio}竖幅`;
   groups.forEach((group,idx)=>{
     const lines=group.split('\n').filter(l=>l.trim()),lc=lines.length;let tc='';
-    lines.forEach((line,i)=>{const cn=['一','二','三','四','五','六','七','八','九','十'][i]||(i+1);tc+=`第${cn}行写着"${line.trim()}"，`;});
-    let ld='';
-    if(lc>1){const pos=['偏上','往下偏左','居中','偏右','明显偏向右下角','再往下偏左','居中偏上'];lines.forEach((l,i)=>{ld+=`第${i+1}行${pos[i%pos.length]}，`;});}
-    const textPart=`纸板上用${getPenDesc()}手写了${lc}行中文文字，${getFontStyleDesc()}，完全模仿真人随手写的效果，${tc}真人手写核心特征：每个字下笔力度都不一样，有的字重有的字轻；字的大小差异明显，每个字大小都不同；每个字倾斜角度和方向随机不同；排列非常随意，每行高低左右错开，${ld}行间距不统一有的宽有的窄；字间距不均匀有的挤在一起有的分开很远；笔画有粗细变化，起笔重收笔轻，有真实笔触和毛边；墨水浓度有变化，有飞白断墨和洇染；${getHandwritingDetail()}整体看起来就是普通人随手写的，完全不整齐不工整，有书写节奏和呼吸感，没有任何印刷体或AI生成的规整感。`;
+    lines.forEach((line,i)=>{tc+=`第${i+1}行："${line.trim()}"。`;});
+    const textPart=`${tc}以上文字用${getPenDesc()}写在纸板上，${getHandwritingDetail()}`;
     let prompt=adaptPrompt(commonScene+textPart+commonTail,tool);
     const negPrompt=getNegativePrompt();
     const item=document.createElement('div');item.className='output-item';
@@ -1486,15 +1485,13 @@ function generateBatch(count){
     let commonScene='';
     if(currentMode==='person'){
       const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
-      commonScene=`真实照片，${personDesc}，${clothingDesc}，${framingDesc}，头发有自然碎发和发丝纹理，发根到发尾有自然的颜色渐变和光泽，眼睛有清澈的眼神光和环境倒影，睫毛根根分明，眉毛有自然的毛流感，嘴唇有自然的唇纹和水润感，面部有细微的绒毛和皮肤纹理，${pronoun}站在室内，双手举着一张${getPaperDesc()}（A3大小），纸板位于画面中央，文字正对着镜头，手指自然弯曲握住纸板边缘，指甲有自然的甲床和半月痕，手部皮肤有纹理和青筋，${ang.desc}。`;
-    }else{commonScene=`真实照片，${getNoPersonSceneDesc()}`;}
-    const commonTail=`${getBgDesc()}。${getLightDesc()}。${ang.desc}，竖版，${getQualityDesc()}，${getPhotoTypeDesc()}，50mm标准镜头f/1.8大光圈全画幅拍摄，浅景深背景自然虚化，焦点精确落在人物面部和纸板文字上，自然色彩还原不夸张调色，保留真实肤色和环境色，头发丝根根分明有自然光泽，衣服面料纹理清晰可见，皮肤有自然的光影过渡和细微光泽，眼睛有眼神光和环境反射，画面有真实摄影的空气感和层次感，自然真实不做作，有生活气息，绝非AI生成的塑料感，${ratio}竖幅`;
+      commonScene=`真实手机随手拍，不是专业摄影，${personDesc}，${clothingDesc}，${framingDesc}，头发自然有些凌乱有碎发，皮肤有自然纹理和小瑕疵不完美，${pronoun}站在室内，双手举着一张${getPaperDesc()}，纸板位于画面中央正对着镜头，手指自然握着纸板，${ang.desc}。纸板上手写的文字内容必须完整准确显示，不能漏字不能错字不能变字：`;
+    }else{commonScene=`真实手机随手拍，不是专业摄影，${getNoPersonSceneDesc()}手写的文字内容必须完整准确显示，不能漏字不能错字不能变字：`;}
+    const commonTail=`以上文字用${getPenDesc()}写在纸板上，${getHandwritingDetail()}手写风格像普通人随手写的便签，字大小不一、歪歪扭扭、排列不整齐不在一条线上、下笔有轻有重、有的字粗有的字细、有涂改和重描痕迹、墨水不匀有飞白、字间距不均匀，完全不是印刷体不是规整字体不是AI生成的工整文字。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影不刻意打光，有生活气息，画面不完美但真实，${ratio}竖幅`;
     groups.forEach((group,idx)=>{
       const lines=group.split('\n').filter(l=>l.trim()),lc=lines.length;let tc='';
-      lines.forEach((line,i)=>{const cn=['一','二','三','四','五','六','七','八','九','十'][i]||(i+1);tc+=`第${cn}行写着"${line.trim()}"，`;});
-      let ld='';
-      if(lc>1){const pos=['偏上','往下偏左','居中','偏右','明显偏向右下角','再往下偏左','居中偏上'];lines.forEach((l,i)=>{ld+=`第${i+1}行${pos[i%pos.length]}，`;});}
-      const textPart=`纸板上用${getPenDesc()}手写了${lc}行中文文字，${getFontStyleDesc()}，完全模仿真人随手写的效果，${tc}真人手写核心特征：每个字下笔力度都不一样，有的字重有的字轻；字的大小差异明显，每个字大小都不同；每个字倾斜角度和方向随机不同；排列非常随意，每行高低左右错开，${ld}行间距不统一有的宽有的窄；字间距不均匀有的挤在一起有的分开很远；笔画有粗细变化，起笔重收笔轻，有真实笔触和毛边；墨水浓度有变化，有飞白断墨和洇染；${getHandwritingDetail()}整体看起来就是普通人随手写的，完全不整齐不工整，有书写节奏和呼吸感，没有任何印刷体或AI生成的规整感。`;
+      lines.forEach((line,i)=>{tc+=`第${i+1}行："${line.trim()}"。`;});
+      const textPart=`${tc}`;
       let prompt=adaptPrompt(commonScene+textPart+commonTail,tool);
       const negPrompt=getNegativePrompt();
       const item=document.createElement('div');item.className='output-item';

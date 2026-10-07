@@ -552,20 +552,20 @@
   <div class="section">
     <div class="section-title">6. 真人手写细节控制（8项，全拉满最真实）</div>
     <div class="row">
-      <div class="col"><div class="slider-group"><div class="slider-label"><span>下笔轻重差异</span><span id="pressureVal">明显</span></div><input type="range" id="pressure" min="1" max="3" value="3" oninput="updateSlider('pressure','pressureVal',['轻微','中等','明显'])"></div></div>
-      <div class="col"><div class="slider-group"><div class="slider-label"><span>字大小差异</span><span id="sizeVal">明显</span></div><input type="range" id="sizeDiff" min="1" max="3" value="3" oninput="updateSlider('sizeDiff','sizeVal',['轻微','中等','明显'])"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>下笔轻重差异</span><span id="pressureVal">明显</span></div><input type="range" id="pressure" min="1" max="3" value="3" oninput="updateSlider('pressure','pressureVal',['轻微','中等','明显']);updatePaperPreview()"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>字大小差异</span><span id="sizeVal">明显</span></div><input type="range" id="sizeDiff" min="1" max="3" value="3" oninput="updateSlider('sizeDiff','sizeVal',['轻微','中等','明显']);updatePaperPreview()"></div></div>
     </div>
     <div class="row" style="margin-top:8px;">
-      <div class="col"><div class="slider-group"><div class="slider-label"><span>字倾斜程度</span><span id="tiltVal">明显</span></div><input type="range" id="tilt" min="1" max="3" value="3" oninput="updateSlider('tilt','tiltVal',['轻微','中等','明显'])"></div></div>
-      <div class="col"><div class="slider-group"><div class="slider-label"><span>排列错乱程度</span><span id="messVal">明显</span></div><input type="range" id="messy" min="1" max="3" value="3" oninput="updateSlider('messy','messVal',['轻微','中等','明显'])"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>字倾斜程度</span><span id="tiltVal">明显</span></div><input type="range" id="tilt" min="1" max="3" value="3" oninput="updateSlider('tilt','tiltVal',['轻微','中等','明显']);updatePaperPreview()"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>排列错乱程度</span><span id="messVal">明显</span></div><input type="range" id="messy" min="1" max="3" value="3" oninput="updateSlider('messy','messVal',['轻微','中等','明显']);updatePaperPreview()"></div></div>
     </div>
     <div class="row" style="margin-top:8px;">
-      <div class="col"><div class="slider-group"><div class="slider-label"><span>涂改/重描</span><span id="mistakeVal">少量</span></div><input type="range" id="mistake" min="0" max="2" value="1" oninput="updateSlider('mistake','mistakeVal',['无','少量','较多'])"></div></div>
-      <div class="col"><div class="slider-group"><div class="slider-label"><span>连笔程度</span><span id="lianbiVal">少量</span></div><input type="range" id="lianbi" min="0" max="2" value="1" oninput="updateSlider('lianbi','lianbiVal',['无','少量','较多'])"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>涂改/重描</span><span id="mistakeVal">少量</span></div><input type="range" id="mistake" min="0" max="2" value="1" oninput="updateSlider('mistake','mistakeVal',['无','少量','较多']);updatePaperPreview()"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>连笔程度</span><span id="lianbiVal">少量</span></div><input type="range" id="lianbi" min="0" max="2" value="1" oninput="updateSlider('lianbi','lianbiVal',['无','少量','较多']);updatePaperPreview()"></div></div>
     </div>
     <div class="row" style="margin-top:8px;">
-      <div class="col"><div class="slider-group"><div class="slider-label"><span>飞白/断墨</span><span id="feibaiVal">较多</span></div><input type="range" id="feibai" min="0" max="2" value="2" oninput="updateSlider('feibai','feibaiVal',['无','少量','较多'])"></div></div>
-      <div class="col"><div class="slider-group"><div class="slider-label"><span>字间距不匀</span><span id="spacingVal">明显</span></div><input type="range" id="spacing" min="1" max="3" value="3" oninput="updateSlider('spacing','spacingVal',['轻微','中等','明显'])"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>飞白/断墨</span><span id="feibaiVal">较多</span></div><input type="range" id="feibai" min="0" max="2" value="2" oninput="updateSlider('feibai','feibaiVal',['无','少量','较多']);updatePaperPreview()"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>字间距不匀</span><span id="spacingVal">明显</span></div><input type="range" id="spacing" min="1" max="3" value="3" oninput="updateSlider('spacing','spacingVal',['轻微','中等','明显']);updatePaperPreview()"></div></div>
     </div>
   </div>
   <div class="section">
@@ -1146,12 +1146,34 @@ function updatePaperPreview(){
   const font=fontStyles.find(f=>f.v===selectedFont)||fontStyles[0];
   const colorMap={black:'#222',darkgray:'#444',darkblue:'#1a365d',red:'#c53030',blue:'#2b6cb0',green:'#276749',purple:'#553c9a',brown:'#744210',pink:'#d53f8c',gold:'#b7791f',white:'#fff'};
   const color=colorMap[document.getElementById('inkColor').value]||'#222';
+  const v=id=>parseInt(document.getElementById(id).value);
+  const pressure=v('pressure'),sizeDiff=v('sizeDiff'),tilt=v('tilt'),messy=v('messy'),mistake=v('mistake'),lianbi=v('lianbi'),feibai=v('feibai'),spacing=v('spacing');
+  const sizeRange=[0,3,6,10][sizeDiff];
+  const tiltRange=[0,4,8,15][tilt];
+  const spacingRange=[0,2,4,7][spacing];
+  const mistakeRate=[0,0.2,0.4][mistake];
+  const feibaiRate=[0,0.25,0.5][feibai];
+  const lianbiMargin=[1,-1,-3][lianbi];
   const lines=text.split('\n');let html='';
-  lines.forEach(line=>{
-    let lineHtml='<div style="margin:4px 0">';
-    line.split('').forEach(ch=>{
-      const sz=font.size+(Math.random()*6-3),rot=(Math.random()*8-4),y=(Math.random()*4-2);
-      lineHtml+=`<span style="display:inline-block;font-family:${font.ff};font-weight:${font.fw};font-size:${sz}px;color:${color};transform:rotate(${rot}deg) translateY(${y}px);margin:0 1px;${font.it?'font-style:italic':''}">${ch===' '?'&nbsp;':ch}</span>`;
+  lines.forEach((line,lineIdx)=>{
+    const lineY=messy>=2?(Math.random()*8-4):(messy===1?(Math.random()*3-1.5):0);
+    const lineX=messy>=3?(Math.random()*12-6):(messy===2?(Math.random()*6-3):(messy===1?(Math.random()*2-1):0));
+    let lineHtml=`<div style="margin:${4+lineY}px 0;padding-left:${lineX}px;line-height:1.5">`;
+    line.split('').forEach((ch,charIdx)=>{
+      if(ch===' '){lineHtml+='&nbsp;';return;}
+      const sz=font.size+(Math.random()*sizeRange*2-sizeRange);
+      const rot=(Math.random()*tiltRange*2-tiltRange);
+      const y=(Math.random()*4-2);
+      const mar=lianbiMargin+(Math.random()*spacingRange*2-spacingRange);
+      let fw=font.fw;
+      if(pressure>=2){const r=Math.random();fw=r<0.3?'bold':(r<0.6?'normal':(r<0.8?'600':'300'));}
+      if(pressure===3&&Math.random()>0.7)fw='900';
+      let extraStyle='';
+      if(mistake>0&&Math.random()<mistakeRate){const ox=(Math.random()*2-1),oy=(Math.random()*2-1);extraStyle+=`text-shadow:${ox}px ${oy}px 0 ${color};`;}
+      if(mistake===2&&Math.random()<0.15){extraStyle+=`text-shadow:1px 0 0 ${color},-1px 1px 0 ${color};`;}
+      let op=1;
+      if(feibai>0&&Math.random()<feibaiRate){op=feibai===2?(0.55+Math.random()*0.25):(0.75+Math.random()*0.15);extraStyle+=`-webkit-text-stroke:0.5px ${color};`;}
+      lineHtml+=`<span style="display:inline-block;font-family:${font.ff};font-weight:${fw};font-size:${sz}px;color:${color};opacity:${op};transform:rotate(${rot}deg) translateY(${y}px);margin:0 ${mar}px;${font.it?'font-style:italic':''};${extraStyle}">${ch}</span>`;
     });
     lineHtml+='</div>';html+=lineHtml;
   });

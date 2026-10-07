@@ -1451,13 +1451,13 @@ function generate(){
   let textContent='';
   lines.forEach((line,i)=>{textContent+=`"${line.trim()}"`+(i<lc-1?'，':'。');});
   // 文字内容放最前面
-  let textHead=`纸板上的文字是真人用手拿着${getPenDesc()}亲手一笔一划写上去的，手写体，手写字，随手写的，不是打印的不是贴上去的不是电脑字体，纸板上只有以下文字，必须完整准确显示每一个字，不能漏字不能少字不能错字不能变字：${textContent}`;
+  let textHead=`特写纸板上刚刚用${getPenDesc()}手写的文字，墨水还微微发亮没干透，笔画有粗有细有毛边有笔锋，字写得歪歪扭扭大小不一，像随手写的便签，真人手写真实自然，不是印刷体不是电脑字体，纸板上只有以下文字必须完整显示：${textContent}`;
   let personPart='';
   if(currentMode==='person'){
     const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),poseDesc=getPoseDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
-    personPart=`真实手机随手拍，不是专业摄影，${personDesc}，${clothingDesc}，${framingDesc}，头发自然有些凌乱，皮肤有自然纹理和小瑕疵不完美，${pronoun}站在室内，双手举着这张${getPaperDesc()}，纸板位于画面中央正对着镜头，${poseDesc}。`;
-  }else{personPart=`真实手机随手拍，不是专业摄影，${getNoPersonSceneDesc()}`;}
-  const styleTail=`文字是手写的，手写体，像普通人随手写的字，笔画有粗细变化起笔有顿笔收笔有回锋转折处有弧度，字写得有点歪有点不规整有书写痕迹和笔触感，字间距大排列松散每行高低错落，墨水饱满黑色，文字清晰可读，真人手写真实自然。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影，有生活气息，真实不做作，${ratio}竖幅`;
+    personPart=`真实手机随手拍，${personDesc}，${clothingDesc}，${framingDesc}，头发自然凌乱，皮肤有纹理和小瑕疵，${pronoun}站在室内双手举着这张${getPaperDesc()}，纸板在画面中央正对着镜头，${poseDesc}。`;
+  }else{personPart=`真实手机随手拍，${getNoPersonSceneDesc()}`;}
+  const styleTail=`手写文字清晰可读，字间距大排列松散每行高低错落，有书写痕迹和涂改，墨水饱满黑色。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机拍摄自然光影有生活气息，真实不做作，${ratio}竖幅`;
   const prompt=adaptPrompt(textHead+personPart+styleTail,tool);
   const item=document.createElement('div');item.className='output-item';
   item.innerHTML=`<div class="output-label">📝 生成结果（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'}）</div>

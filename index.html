@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI真人举牌手写体提示词生成器 完全版</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f5f0e8;color:#333;padding:20px;min-height:100vh}
+  .container{max-width:1100px;margin:0 auto;background:#fff;border-radius:16px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+  h1{font-size:24px;color:#5c4033;margin-bottom:4px;text-align:center}
+  .subtitle{text-align:center;color:#8b6f47;font-size:13px;margin-bottom:20px}
+  .section{margin-bottom:22px}
+  .section-title{font-size:16px;font-weight:700;color:#5c4033;margin-bottom:12px;padding-left:12px;border-left:5px solid #c68b59;display:flex;justify-content:space-between;align-items:center}
+  label{display:block;font-size:12.5px;color:#666;margin-bottom:4px;font-weight:500}
+  textarea,input,select{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;background:#fafafa;transition:border-color .2s}
+  textarea:focus,input:focus,select:focus{outline:none;border-color:#c68b59;background:#fff}
+  textarea{min-height:80px;resize:vertical;line-height:1.6}
+  .row{display:flex;gap:12px;flex-wrap:wrap}
+  .col{flex:1;min-width:140px}
+  .btn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+  .btn-primary{background:#c68b59;color:#fff}.btn-primary:hover{background:#b07a4a}
+  .btn-secondary{background:#e8ddd0;color:#5c4033}.btn-secondary:hover{background:#d8c8b8}
+  .btn-danger{background:#e57373;color:#fff}.btn-danger:hover{background:#d32f2f}
+  .btn-small{padding:5px 10px;font-size:11px}
+  .btn-group{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+  .output-area{background:#2d3748;color:#e2e8f0;padding:18px;border-radius:10px;font-family:"Courier New",monospace;font-size:12px;line-height:1.75;white-space:pre-wrap;word-break:break-all;max-height:420px;overflow-y:auto;margin-top:8px}
+  .neg-area{background:#3d2828;color:#feb2b2;padding:14px;border-radius:10px;font-family:"Courier New",monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;word-break:break-all;margin-top:8px;border:1px solid #742a2a}
+  .output-item{margin-bottom:22px;padding-bottom:18px;border-bottom:1px dashed #4a5568}
+  .output-item:last-child{border-bottom:none;margin-bottom:0}
+  .output-label{color:#ecc94b;font-weight:600;margin-bottom:6px;font-size:13px}
+  .neg-label{color:#fc8181;font-weight:600;margin-bottom:4px;font-size:12px;margin-top:10px}
+  .copy-btn{padding:5px 12px;background:#4a5568;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;margin-top:6px;margin-right:6px}
+  .copy-btn:hover{background:#718096}.copy-btn.copied{background:#48bb78}
+  .tip{background:#fff5e1;border-left:4px solid #ecc94b;padding:10px 14px;border-radius:0 8px 8px 0;font-size:12px;color:#744210;margin-top:12px;line-height:1.7}
+  .tip strong{color:#5c4033}
+  .preset-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .preset-btn{padding:5px 10px;background:#f0e6d8;color:#5c4033;border:1px solid #d4c4b0;border-radius:6px;font-size:11px;cursor:pointer}
+  .preset-btn:hover{background:#e8ddd0}
+  .custom-input{margin-top:6px;display:none}.custom-input.show{display:block}
+  .mode-tabs{display:flex;gap:8px;margin-bottom:14px}
+  .mode-tab{flex:1;padding:12px;text-align:center;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;background:#fafafa;transition:all .2s}
+  .mode-tab.active{border-color:#c68b59;background:#fff5eb;color:#5c4033}
+  .mode-tab .mode-icon{font-size:20px;display:block;margin-bottom:2px}
+  .gender-tabs{display:flex;gap:8px;margin-bottom:12px}
+  .gender-tab{flex:1;padding:10px;text-align:center;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;background:#fafafa;transition:all .2s}
+  .gender-tab.active{border-color:#c68b59;background:#fff5eb;color:#5c4033}
+  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px;margin-top:8px}
+  .preview-card{border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;transition:all .25s;overflow:hidden;background:#fafafa}
+  .preview-card:hover{border-color:#c68b59;transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
+  .preview-card.active{border-color:#c68b59;box-shadow:0 0 0 2px rgba(198,139,89,.35)}
+  .preview-img{width:100%;height:92px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
+  .preview-name{padding:6px 6px 5px;font-size:11px;text-align:center;color:#444;font-weight:600;line-height:1.3}
+  .bg-preview-icon{font-size:22px;position:absolute;bottom:5px;right:6px;z-index:3;opacity:.85;text-shadow:0 1px 3px rgba(0,0,0,.4);filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
+  .font-preview-img{background:#fffdf8;height:92px;display:flex;align-items:center;justify-content:center;padding:4px}
+  .font-char{display:inline-block}
+  /* 统一人像轮廓底图 - 用于光线和画质预览 */
+  .portrait-base{position:absolute;inset:0;background:linear-gradient(180deg,#c8c0b4 0%,#a89888 55%,#8a7a6a 100%)}
+  .portrait-base::before{content:'';position:absolute;left:50%;top:18%;transform:translateX(-50%);width:28px;height:34px;background:radial-gradient(ellipse at 40% 35%,#e8d8c8,#c8b098);border-radius:50% 50% 45% 45%;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  .portrait-base::after{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:50px;height:30px;background:linear-gradient(180deg,#b8a898,#9a8a7a);border-radius:50% 50% 0 0}
+  /* ===== 背景预览 - 真实感微缩场景 ===== */
+  .bg-curtain{background:repeating-linear-gradient(90deg,#163252 0,#24507a 5px,#1a3a5c 10px,#2a5a8c 15px,#163252 20px,#1e4468 25px);position:relative}
+  .bg-curtain::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent 2px,rgba(255,255,255,.06) 2px,rgba(255,255,255,.06) 3px,transparent 3px,transparent 8px,rgba(0,0,0,.1) 8px,rgba(0,0,0,.1) 9px)}
+  .bg-curtain::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.25) 0%,transparent 25%,transparent 65%,rgba(0,0,0,.3) 100%),radial-gradient(ellipse at 50% 40%,rgba(100,150,200,.15) 0%,transparent 60%)}
+  .bg-whitewall{background:linear-gradient(180deg,#fdfdfd 0%,#f2f2f2 40%,#eaeaea 100%);position:relative}
+  .bg-whitewall::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.8) 0%,transparent 50%),linear-gradient(90deg,transparent 60%,rgba(0,0,0,.04) 100%)}
+  .bg-whitewall::after{content:'';position:absolute;bottom:0;left:0;right:0;height:18px;background:linear-gradient(180deg,transparent,rgba(0,0,0,.06))}
+  .bg-beigewall{background:linear-gradient(180deg,#f8f2e6 0%,#ede4d0 50%,#e0d6c0 100%);position:relative}
+  .bg-beigewall::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 30%,rgba(255,250,240,.6) 0%,transparent 55%)}
+  .bg-beigewall::after{content:'';position:absolute;bottom:0;left:0;right:0;height:15px;background:linear-gradient(180deg,transparent,rgba(139,111,71,.1))}
+  .bg-cement{background:linear-gradient(135deg,#9a9a9a 0%,#828282 40%,#8e8e8e 70%,#787878 100%);position:relative}
+  .bg-cement::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 30%,rgba(255,255,255,.08) 1px,transparent 2px),radial-gradient(circle at 70% 60%,rgba(0,0,0,.08) 1px,transparent 2px),radial-gradient(circle at 40% 80%,rgba(255,255,255,.06) 1px,transparent 2px);background-size:12px 12px,15px 15px,18px 18px}
+  .bg-cement::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.05) 0%,transparent 50%,rgba(0,0,0,.08) 100%)}
+  .bg-brick{background:linear-gradient(180deg,#a84830 0%,#903820 50%,#7a2e18 100%);position:relative}
+  .bg-brick::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0,transparent 13px,rgba(60,20,10,.4) 13px,rgba(60,20,10,.4) 15px),repeating-linear-gradient(90deg,transparent 0,transparent 28px,rgba(60,20,10,.3) 28px,rgba(60,20,10,.3) 30px);background-position:0 0,14px 7px}
+  .bg-brick::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,200,150,.1) 0%,transparent 40%,rgba(0,0,0,.15) 100%)}
+  .bg-wood{background:repeating-linear-gradient(90deg,#c89860 0,#b88850 2px,#d4a870 4px,#c09058 7px,#cc9e68 10px,#b88448 13px);position:relative}
+  .bg-wood::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent 20px,rgba(80,40,10,.12) 20px,rgba(80,40,10,.12) 21px)}
+  .bg-wood::after{content:'';position:absolute;left:25%;top:20%;width:8px;height:8px;background:radial-gradient(circle,#8a5a28,#6a3a18);border-radius:50%;box-shadow:20px 30px 0 -1px #7a4a20,45px 10px 0 -2px #8a5a28}
+  .bg-livingroom{background:linear-gradient(180deg,#d8c8b0 0%,#c0a890 55%,#a89078 100%);position:relative}
+  .bg-livingroom::before{content:'';position:absolute;left:10%;bottom:0;width:35%;height:45%;background:linear-gradient(180deg,#8a7058,#6a5040);border-radius:8px 8px 0 0;box-shadow:inset 0 4px 0 rgba(255,255,255,.1)}
+  .bg-livingroom::after{content:'';position:absolute;right:15%;top:15%;width:22%;height:35%;background:linear-gradient(180deg,#a8c8e0,#7898b8);border:3px solid #d8c8a8;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+  .bg-bedroom{background:linear-gradient(180deg,#e8d8e0 0%,#d4c0d0 50%,#c0a8b8 100%);position:relative}
+  .bg-bedroom::before{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:55%;height:38%;background:linear-gradient(180deg,#fff,#f0e8f0);border-radius:6px 6px 0 0;box-shadow:0 -3px 0 #c8a8b8}
+  .bg-bedroom::after{content:'';position:absolute;left:28%;bottom:30%;width:12%;height:10%;background:#d8b8c8;border-radius:4px;box-shadow:32px 0 0 #d8b8c8}
+  .bg-office{background:linear-gradient(180deg,#c8d0d8 0%,#a8b0b8 55%,#9098a0 100%);position:relative}
+  .bg-office::before{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:60%;height:30%;background:linear-gradient(180deg,#6a5a4a,#5a4a3a);border-radius:4px 4px 0 0}
+  .bg-office::after{content:'';position:absolute;left:50%;bottom:28%;transform:translateX(-50%);width:24%;height:22%;background:linear-gradient(180deg,#2a2a2a,#1a1a1a);border:2px solid #444;border-radius:3px}
+  .bg-cafe{background:linear-gradient(180deg,#7a5a38 0%,#5c4028 50%,#4a3220 100%);position:relative}
+  .bg-cafe::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 25%,rgba(255,200,100,.35) 0%,transparent 45%),radial-gradient(ellipse at 75% 60%,rgba(255,180,80,.2) 0%,transparent 40%)}
+  .bg-cafe::after{content:'';position:absolute;left:20%;bottom:15%;width:14%;height:18%;background:linear-gradient(180deg,#fff,#e8e0d8);border-radius:0 0 6px 6px;box-shadow:18px 3px 0 -2px rgba(255,255,255,.7)}
+  .bg-bookstore{background:linear-gradient(180deg,#5a3820 0%,#422818 50%,#321e10 100%);position:relative}
+  .bg-bookstore::before{content:'';position:absolute;left:5%;right:5%;top:15%;bottom:10%;background:repeating-linear-gradient(90deg,#6a4028 0,#7a4a30 8px,#5a3820 8px,#6a4028 16px);box-shadow:inset 0 2px 8px rgba(0,0,0,.3)}
+  .bg-bookstore::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,180,80,.15) 0%,transparent 50%,rgba(0,0,0,.2) 100%)}
+  .bg-street{background:linear-gradient(180deg,#8898a8 0%,#687888 35%,#505860 65%,#404848 100%);position:relative}
+  .bg-street::before{content:'';position:absolute;left:0;bottom:0;width:25%;height:60%;background:linear-gradient(180deg,#5a6878,#3a4858);box-shadow:28px -10px 0 -5px #4a5868,55px 5px 0 -8px #5a6878}
+  .bg-street::after{content:'';position:absolute;right:0;bottom:0;width:20%;height:50%;background:linear-gradient(180deg,#505868,#384048)}
+  .bg-park{background:linear-gradient(180deg,#b8e098 0%,#88c068 40%,#68a848 70%,#508838 100%);position:relative}
+  .bg-park::before{content:'';position:absolute;left:15%;bottom:20%;width:6px;height:35%;background:#5a3820;box-shadow:25px -5px 0 0 #5a3820,50px 3px 0 -1px #5a3820}
+  .bg-park::after{content:'';position:absolute;left:8%;bottom:45%;width:20px;height:20px;background:radial-gradient(circle,#4a8838,#2a6818);border-radius:50%;box-shadow:22px -8px 0 -2px #3a7828,48px -3px 0 -4px #4a8838,0 0 20px rgba(100,200,80,.3)}
+  .bg-studiowhite{background:linear-gradient(180deg,#f8f8f8 0%,#eeeeee 40%,#e4e4e4 100%);position:relative}
+  .bg-studiowhite::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.9) 0%,rgba(255,255,255,.3) 50%,transparent 80%)}
+  .bg-studiowhite::after{content:'';position:absolute;bottom:0;left:0;right:0;height:20%;background:linear-gradient(180deg,transparent,rgba(0,0,0,.05))}
+  .bg-studiogray{background:linear-gradient(180deg,#c8c8c8 0%,#a8a8a8 50%,#909090 100%);position:relative}
+  .bg-studiogray::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.4) 0%,transparent 60%)}
+  .bg-studiopink{background:linear-gradient(180deg,#f4dce4 0%,#e8c8d8 50%,#dcb0c8 100%);position:relative}
+  .bg-studiopink::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(255,240,245,.5) 0%,transparent 60%)}
+  /* ===== 光线预览 - 人像底图+光效叠加 ===== */
+  .light-base{position:absolute;inset:0}
+  .light-soft{background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.35) 0%,rgba(255,255,255,.1) 60%,rgba(0,0,0,.05) 100%)}
+  .light-window{background:linear-gradient(90deg,rgba(255,255,230,.55) 0%,rgba(255,255,230,.15) 45%,rgba(0,0,0,.18) 100%)}
+  .light-warmlamp{background:radial-gradient(ellipse at 50% 50%,rgba(255,200,100,.55) 0%,rgba(255,160,60,.25) 50%,rgba(80,40,0,.25) 100%)}
+  .light-flash{background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.8) 0%,rgba(255,255,255,.35) 35%,rgba(0,0,0,.08) 100%)}
+  .light-backlight{background:radial-gradient(ellipse at 50% 15%,rgba(255,255,210,.5) 0%,transparent 45%),linear-gradient(180deg,rgba(0,0,0,.3) 0%,rgba(0,0,0,.1) 60%,rgba(0,0,0,.2) 100%)}
+  .light-toplight{background:radial-gradient(ellipse at 50% 5%,rgba(255,255,255,.55) 0%,rgba(0,0,0,.15) 70%)}
+  .light-coldwhite{background:radial-gradient(ellipse at 50% 45%,rgba(200,225,255,.45) 0%,rgba(160,190,230,.2) 60%,rgba(80,100,140,.1) 100%)}
+  .light-candle{background:radial-gradient(ellipse at 50% 85%,rgba(255,160,50,.65) 0%,rgba(220,90,0,.3) 45%,rgba(40,15,0,.45) 100%)}
+  .light-cloudy{background:linear-gradient(180deg,rgba(220,225,235,.35) 0%,rgba(200,205,215,.25) 100%)}
+  .light-spotlight{background:radial-gradient(ellipse at 50% 45%,rgba(255,255,255,.65) 15%,rgba(0,0,0,.55) 75%)}
+  .light-goldenhour{background:linear-gradient(180deg,rgba(255,190,90,.55) 0%,rgba(255,130,60,.35) 50%,rgba(180,70,30,.3) 100%)}
+  .light-neon{background:linear-gradient(135deg,rgba(255,20,120,.4) 0%,rgba(0,200,255,.35) 50%,rgba(140,40,255,.4) 100%)}
+  /* ===== 画质预览 - 人像底图+滤镜 ===== */
+  .quality-mobile{filter:contrast(1.05) saturate(.92) brightness(1.02)}
+  .quality-dslr{filter:contrast(1.18) saturate(1.12) brightness(1.03)}
+  .quality-film{filter:sepia(.35) contrast(1.12) saturate(.85) brightness(.97)}
+  .quality-film::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,.04) 1px,transparent 2px);background-size:4px 4px;mix-blend-mode:overlay}
+  .quality-polaroid{filter:sepia(.25) brightness(1.08) contrast(.92) saturate(.9)}
+  .quality-polaroid::before{content:'';position:absolute;inset:5px;background:transparent;border:4px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2);z-index:2}
+  .quality-polaroid::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.15) 100%)}
+  /* ===== 组合效果预览 ===== */
+  .combo-preview{width:100%;height:210px;border-radius:14px;overflow:hidden;position:relative;border:2px solid #e0d8cc;box-shadow:0 6px 20px rgba(0,0,0,.12);margin-top:4px}
+  .combo-layer{position:absolute;inset:0}
+  .combo-bg{z-index:1}
+  .combo-portrait{z-index:2;display:flex;align-items:center;justify-content:center}
+  .combo-portrait::before{content:'';width:64px;height:80px;background:radial-gradient(ellipse at 40% 32%,var(--skin-c,#e8c8a8),var(--skin-d,#c09870));border-radius:50% 50% 45% 45%;position:relative;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:2}
+  .combo-portrait::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:110px;height:60px;background:linear-gradient(180deg,var(--skin-c,#b8a898),var(--skin-d,#9a8a7a));border-radius:50% 50% 0 0;z-index:1}
+  .combo-portrait.skin-freckle::before{background-image:radial-gradient(ellipse at 40% 32%,var(--skin-c,#f0d0b0),var(--skin-d,#d8b088)),radial-gradient(circle at 30% 45%,#a06040 1.5px,transparent 2px),radial-gradient(circle at 55% 55%,#905030 1.5px,transparent 2px),radial-gradient(circle at 45% 35%,#a06040 1px,transparent 1.5px);background-blend-mode:normal,normal,normal,normal}
+  .combo-portrait.skin-oily::before{box-shadow:0 4px 14px rgba(0,0,0,.2),inset 8px -5px 20px rgba(255,255,255,.3)}
+  .combo-portrait.skin-dry::before{filter:contrast(1.04) brightness(.97)}
+  .combo-portrait.skin-mobile::before{filter:blur(.4px) brightness(1.04)}
+  .combo-portrait.skin-hyperreal::before{box-shadow:0 4px 14px rgba(0,0,0,.2),inset 0 0 0 1px rgba(120,80,50,.15)}
+  .combo-light{z-index:3}
+  .combo-label{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:5;background:rgba(0,0,0,.6);color:#fff;padding:5px 16px;border-radius:20px;font-size:12.5px;white-space:nowrap;backdrop-filter:blur(4px)}
+  .slider-group{margin-top:6px}
+  .slider-label{display:flex;justify-content:space-between;font-size:11.5px;color:#666;margin-bottom:3px}
+  input[type=range]{-webkit-appearance:none;height:5px;border-radius:3px;background:#e0e0e0;padding:0}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#c68b59;cursor:pointer}
+  .skin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:6px;margin-top:6px}
+  .skin-card{border:2px solid #e0e0e0;border-radius:8px;padding:8px 6px;cursor:pointer;transition:all .2s;text-align:center;font-size:11px;background:#fafafa}
+  .skin-card:hover{border-color:#c68b59;background:#fff5eb}.skin-card.active{border-color:#c68b59;background:#fff5eb}
+  .skin-preview{width:38px;height:38px;border-radius:50%;margin:0 auto 5px;border:2px solid rgba(255,255,255,.7);box-shadow:0 2px 6px rgba(0,0,0,.18),inset 0 -2px 4px rgba(0,0,0,.1);position:relative;overflow:hidden}
+  .skin-natural{background:radial-gradient(circle at 38% 32%,#ecc8a8 0%,#d4a880 60%,#c09070 100%)}
+  .skin-natural::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 25% 35%,rgba(255,255,255,.12) 1px,transparent 2px),radial-gradient(circle at 60% 55%,rgba(120,80,50,.08) 1px,transparent 2px);background-size:6px 6px,7px 7px}
+  .skin-lightmakeup{background:radial-gradient(circle at 40% 30%,#f0d8c0 0%,#e0c0a0 60%,#d0b090 100%)}
+  .skin-lightmakeup::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 35% 25%,rgba(255,240,220,.4) 0%,transparent 50%)}
+  .skin-freckle{background:radial-gradient(circle at 40% 32%,#f0d0b0 0%,#e0b890 60%,#d0a880 100%)}
+  .skin-freckle::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 22% 40%,#a06040 1px,transparent 1.5px),radial-gradient(circle at 35% 55%,#905030 1px,transparent 1.5px),radial-gradient(circle at 50% 35%,#a06040 1px,transparent 1.5px),radial-gradient(circle at 65% 50%,#804020 1px,transparent 1.5px),radial-gradient(circle at 75% 38%,#a06040 1px,transparent 1.5px),radial-gradient(circle at 45% 65%,#905030 1px,transparent 1.5px)}
+  .skin-flaw{background:radial-gradient(circle at 38% 32%,#e0b890 0%,#c89870 60%,#b88860 100%)}
+  .skin-flaw::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 30% 45%,#b05040 2px,transparent 3px),radial-gradient(circle at 55% 60%,#a04030 1.5px,transparent 2.5px),radial-gradient(circle at 68% 35%,#803020 1.5px,transparent 2px),radial-gradient(circle at 42% 25%,#704030 1px,transparent 2px)}
+  .skin-oily{background:radial-gradient(circle at 35% 25%,#f0d0a8 0%,#d8b080 50%,#c8a070 100%)}
+  .skin-oily::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,.5) 0%,transparent 35%),radial-gradient(ellipse at 60% 15%,rgba(255,255,255,.35) 0%,transparent 30%)}
+  .skin-dry{background:radial-gradient(circle at 40% 35%,#d8b898 0%,#c09878 60%,#b08868 100%)}
+  .skin-dry::after{content:'';position:absolute;inset:0;border-radius:50%;background:repeating-linear-gradient(115deg,transparent 0,transparent 3px,rgba(120,80,50,.06) 3px,rgba(120,80,50,.06) 4px),repeating-linear-gradient(65deg,transparent 0,transparent 5px,rgba(100,70,40,.05) 5px,rgba(100,70,40,.05) 6px)}
+  .skin-mobile{background:radial-gradient(circle at 40% 30%,#f0d8c0 0%,#e4c4a4 60%,#d8b898 100%)}
+  .skin-mobile::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(ellipse at 40% 35%,rgba(255,250,240,.3) 0%,transparent 60%);filter:blur(.5px)}
+  .skin-hyperreal{background:radial-gradient(circle at 38% 30%,#e4c09c 0%,#c89870 55%,#b08058 100%)}
+  .skin-hyperreal::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 20% 30%,rgba(80,50,30,.15) 1px,transparent 1.5px),radial-gradient(circle at 40% 50%,rgba(100,60,40,.12) 1px,transparent 1.5px),radial-gradient(circle at 65% 35%,rgba(80,50,30,.15) 1px,transparent 1.5px),radial-gradient(circle at 75% 60%,rgba(100,60,40,.1) 1px,transparent 1.5px),radial-gradient(circle at 50% 70%,rgba(80,50,30,.12) 1px,transparent 1.5px),radial-gradient(ellipse at 25% 18%,rgba(255,255,255,.25) 0%,transparent 30%);background-size:5px 5px,6px 6px,5px 5px,7px 7px,5px 5px,100% 100%}
+  .check-result{margin-top:8px;padding:10px;border-radius:8px;font-size:12px;line-height:1.7;display:none}
+  .check-result.show{display:block}
+  .check-safe{background:#f0fff4;border:1px solid #9ae6b4;color:#22543d}
+  .check-warn{background:#fff5f5;border:1px solid #feb2b2;color:#742a2a}
+  .check-danger{background:#fff5f5;border:2px solid #fc8181;color:#742a2a}
+  .danger-word{background:#fed7d7;color:#c53030;padding:1px 4px;border-radius:3px;font-weight:600}
+  .replace-suggest{color:#2f855a;font-weight:500}
+  /* 违禁词管理 */
+  .word-item{display:flex;gap:6px;padding:8px 10px;border-bottom:1px solid #f0ebe3;align-items:flex-start;flex-wrap:wrap}
+  .word-item:last-child{border-bottom:none}
+  .word-item input,.word-item select{padding:4px 6px;font-size:11.5px}
+  .word-item .w-word{width:100px;font-weight:600}
+  .word-item .w-level{width:80px}
+  .word-item .w-reason{flex:2;min-width:120px}
+  .word-item .w-replace{flex:2;min-width:120px}
+  .word-item .w-del{padding:4px 8px;background:#fed7d7;color:#c53030;border:none;border-radius:4px;cursor:pointer;font-size:11px;white-space:nowrap}
+  .word-item .w-del:hover{background:#fc8181;color:#fff}
+  .word-item.danger-row{background:#fff5f5}
+  .word-item.warn-row{background:#fffaf0}
+  /* ===== 卡密授权系统 ===== */
+  #cardLock{position:fixed;top:0;left:0;width:100%;height:100%;background:linear-gradient(135deg,#2c1810 0%,#4a2c1a 50%,#2c1810 100%);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px}
+  .card-box{background:#fff;border-radius:20px;padding:40px 36px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4);text-align:center}
+  .card-icon{font-size:56px;margin-bottom:16px}
+  .card-title{font-size:22px;font-weight:800;color:#5c4033;margin-bottom:6px}
+  .card-sub{font-size:13px;color:#999;margin-bottom:24px;line-height:1.6}
+  .card-input{width:100%;padding:14px 16px;font-size:16px;border:2px solid #e0d8cc;border-radius:10px;text-align:center;letter-spacing:2px;font-weight:600;color:#5c4033;margin-bottom:14px;transition:border .2s}
+  .card-input:focus{outline:none;border-color:#c68b59}
+  .card-btn{width:100%;padding:14px;background:linear-gradient(135deg,#c68b59,#a0673a);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s}
+  .card-btn:hover{opacity:.9}
+  .card-btn:disabled{opacity:.5;cursor:not-allowed}
+  .card-msg{margin-top:14px;font-size:13px;min-height:20px}
+  .card-msg.error{color:#c53030}
+  .card-msg.success{color:#2f855a}
+  .card-msg.loading{color:#8b6f47}
+  .card-footer{margin-top:20px;font-size:11px;color:#bbb;border-top:1px solid #f0ebe3;padding-top:14px}
+  .card-footer a{color:#c68b59;cursor:pointer;text-decoration:none}
+  .card-admin-link{margin-top:10px;font-size:11px;color:#ddd;cursor:pointer}
+  /* 管理员面板 */
+  #adminPanel{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+  .admin-box{background:#fff;border-radius:16px;padding:28px;max-width:700px;width:100%;max-height:90vh;overflow-y:auto}
+  .admin-title{font-size:18px;font-weight:800;color:#5c4033;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+  .admin-close{cursor:pointer;font-size:20px;color:#999}
+  .admin-section{margin-bottom:18px;padding:14px;background:#faf8f5;border-radius:10px}
+  .admin-section h4{font-size:13px;color:#5c4033;margin-bottom:10px}
+  .admin-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;align-items:center}
+  .admin-row input,.admin-row select{padding:8px 10px;font-size:12px;border:1px solid #e0d8cc;border-radius:6px;flex:1;min-width:100px}
+  .admin-btn{padding:8px 16px;background:#c68b59;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap}
+  .admin-btn:hover{background:#a0673a}
+  .admin-btn.danger{background:#c53030}
+  .admin-btn.secondary{background:#999}
+  .card-list{max-height:200px;overflow-y:auto;border:1px solid #e0d8cc;border-radius:8px;background:#fff}
+  .card-list-item{display:flex;gap:8px;padding:8px 10px;border-bottom:1px solid #f0ebe3;font-size:12px;align-items:center;flex-wrap:wrap}
+  .card-list-item:last-child{border-bottom:none}
+  .card-code{font-weight:700;color:#5c4033;min-width:140px;font-family:monospace}
+  .card-expire{color:#8b6f47;min-width:100px}
+  .card-note{color:#666;flex:1;min-width:80px}
+  .card-status{padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+  .card-status.active{background:#c6f6d5;color:#2f855a}
+  .card-status.expired{background:#fed7d7;color:#c53030}
+  .card-status.disabled{background:#e2e8f0;color:#718096}
+  .card-actions{display:flex;gap:4px}
+  .card-actions button{padding:3px 8px;font-size:11px;border:none;border-radius:4px;cursor:pointer}
+  .btn-toggle{background:#bee3f8;color:#2b6cb0}
+  .btn-del{background:#fed7d7;color:#c53030}
+  .admin-hint{font-size:11px;color:#999;margin-top:8px;line-height:1.6}
+  .url-config{font-size:11px;color:#8b6f47;background:#fffaf0;padding:8px;border-radius:6px;margin-top:8px;word-break:break-all}
+  .paper-preview{margin-top:10px;background:#f5f0e8;padding:14px;border-radius:10px;text-align:center}
+  .paper-preview-board{display:inline-block;background:#fdf8f0;padding:20px 24px;border-radius:4px;box-shadow:2px 3px 8px rgba(0,0,0,.15);min-width:240px;max-width:100%;position:relative}
+  .paper-preview-text{font-family:'Comic Sans MS','KaiTi',cursive;color:#333;font-size:18px;line-height:2;text-align:left;white-space:pre-wrap;word-break:break-all}
+  .paper-preview-label{font-size:11px;color:#8b6f47;margin-bottom:6px}
+  .seed-box{margin-top:8px;padding:10px;background:#faf5ee;border-radius:8px;border:1px dashed #d4c4b0}
+  .seed-box textarea{min-height:50px;font-size:11.5px;background:#fff}
+  .seed-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .config-bar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  .config-bar select{flex:1;min-width:150px}
+  .hidden-section{display:none}
+</style>
+</head>
+<body>
+<!-- 卡密授权验证 -->
+<div id="cardLock">
+  <div class="card-box">
+    <div class="card-icon">🔐</div>
+    <div class="card-title">AI真人举牌手写体提示词生成器</div>
+    <div class="card-sub">请输入授权卡密解锁全部功能<br>卡密格式：ZS-XXXX-XXXX</div>
+    <input type="text" id="cardInput" class="card-input" placeholder="请输入卡密" maxlength="14" oninput="this.value=this.value.toUpperCase()">
+    <button class="card-btn" id="cardVerifyBtn" onclick="verifyCard()">🔓 验证并解锁</button>
+    <div class="card-msg" id="cardMsg"></div>
+    <div class="card-footer">没有卡密？请联系管理员获取授权<br>卡密验证后30天内免重复输入</div>
+    <div class="card-admin-link" onclick="showAdminLogin()">⚙️ 管理员入口</div>
+  </div>
+</div>
+<!-- 管理员面板 -->
+<div id="adminPanel">
+  <div class="admin-box">
+    <div class="admin-title">
+      <span>⚙️ 卡密管理后台</span>
+      <span class="admin-close" onclick="closeAdmin()">✕</span>
+    </div>
+    <!-- 卡密库URL配置 -->
+    <div class="admin-section">
+      <h4>📡 卡密库地址（在线JSON）</h4>
+      <div class="admin-row">
+        <input type="text" id="cardUrlInput" placeholder="https://... 卡密JSON地址" style="flex:3">
+        <button class="admin-btn" onclick="saveCardUrl()">保存地址</button>
+      </div>
+      <div class="admin-hint">卡密库需为公开可访问的JSON文件。推荐用 GitHub Gist（创建后点 Raw 复制地址）。<br>JSON格式：<code>{"ZS-XXXX-XXXX":{"expire":1735689600000,"note":"张三","active":true}}</code></div>
+      <div class="url-config" id="currentUrlDisplay">当前卡密库：未设置</div>
+    </div>
+    <!-- 生成新卡密 -->
+    <div class="admin-section">
+      <h4>➕ 生成新卡密</h4>
+      <div class="admin-row">
+        <select id="cardDuration">
+          <option value="7">7天体验卡</option>
+          <option value="30" selected>30天月卡</option>
+          <option value="90">90天季卡</option>
+          <option value="180">180天半年卡</option>
+          <option value="365">365天年卡</option>
+          <option value="0">永久卡</option>
+        </select>
+        <input type="text" id="cardNote" placeholder="备注（谁的卡）" style="flex:2">
+        <button class="admin-btn" onclick="generateNewCard()">生成卡密</button>
+      </div>
+      <div id="generatedCard" style="margin-top:8px;font-size:13px;color:#2f855a;font-weight:600;display:none"></div>
+      <div class="admin-hint">生成后会自动添加到卡密库（需卡密库可写，或手动复制到JSON）</div>
+    </div>
+    <!-- 卡密列表 -->
+    <div class="admin-section">
+      <h4>📋 卡密列表（<span id="cardTotalCount">0</span>个）</h4>
+      <div class="admin-row">
+        <button class="admin-btn secondary" onclick="refreshCardList()">🔄 刷新列表</button>
+        <button class="admin-btn secondary" onclick="exportCards()">📤 导出JSON</button>
+        <button class="admin-btn danger" onclick="clearLocalCardCache()">🗑️ 清除本机授权缓存</button>
+      </div>
+      <div class="card-list" id="adminCardList" style="margin-top:10px"><div style="padding:20px;text-align:center;color:#999;font-size:12px">加载中...</div></div>
+    </div>
+    <div class="admin-hint">💡 管理卡密需编辑在线JSON文件。在GitHub Gist中编辑后，用户端刷新页面即生效。作废卡密将 active 改为 false 即可。</div>
+  </div>
+</div>
+<div class="container">
+  <h1>✍️ AI真人举牌手写体提示词生成器 完全版</h1>
+  <p class="subtitle">出镜/不出镜双模式 · 负面提示词 · AI工具适配 · 合规检测 · 人物锁定 · 实时预览 · 配置保存</p>
+  <div class="config-bar">
+    <button class="btn btn-secondary btn-small" onclick="saveConfig()">💾 保存当前配置</button>
+    <select id="configList" onchange="loadConfig(this.value)"><option value="">-- 加载已保存配置 --</option></select>
+    <button class="btn btn-danger btn-small" onclick="deleteConfig()">🗑️ 删除</button>
+    <button class="btn btn-secondary btn-small" onclick="randomConfig()">🎲 随机一套</button>
+  </div>
+  <div class="section">
+    <div class="section-title">1. 纸板文字内容 <span style="font-size:11px;font-weight:400;color:#999">每行一句，多条空行分隔</span></div>
+    <textarea id="textInput" placeholder="示例：
+你在干嘛呀
+有没有想我呀
+老实交代
+是不是在看别的女人" oninput="updatePaperPreview();checkCompliance()"></textarea>
+    <div class="preset-btns">
+      <button class="preset-btn" onclick="loadPreset(0)">🔥 撩人文案</button>
+      <button class="preset-btn" onclick="loadPreset(1)">🤝 交友互动</button>
+      <button class="preset-btn" onclick="loadPreset(2)">💭 情绪感悟</button>
+      <button class="preset-btn" onclick="loadPreset(3)">☕ 日常碎碎念</button>
+      <button class="preset-btn" onclick="loadPreset(4)">📍 郑州同城</button>
+      <button class="preset-btn" onclick="loadPreset(5)">📋 举牌文案</button>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-secondary btn-small" onclick="checkCompliance(true)">🛡️ 一键合规检测</button>
+      <button class="btn btn-secondary btn-small" onclick="toggleWordManager()">⚙️ 管理违禁词</button>
+      <span id="charCount" style="font-size:11px;color:#999">0字</span>
+      <span id="wordCount" style="font-size:11px;color:#999">共0个违禁词</span>
+    </div>
+    <div id="checkResult" class="check-result"></div>
+    <!-- 违禁词管理面板 -->
+    <div id="wordManager" style="display:none;margin-top:12px;padding:14px;background:#faf8f5;border:1px solid #e0d8cc;border-radius:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-weight:700;color:#5c4033;font-size:14px">📝 违禁词管理（共 <span id="wmCount">0</span> 个，自动保存）</span>
+        <button class="btn btn-danger btn-small" onclick="resetWords()">↩️ 恢复默认词库</button>
+      </div>
+      <!-- 添加新词 -->
+      <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+        <input type="text" id="newWord" placeholder="输入违禁词，自动分类" style="flex:1;min-width:100px" oninput="autoFillWord(this.value)">
+        <select id="newLevel" style="width:90px">
+          <option value="danger">🔴高危</option>
+          <option value="warn">⚠️敏感</option>
+        </select>
+        <input type="text" id="newReason" placeholder="原因说明（自动生成）" style="flex:2;min-width:120px">
+        <input type="text" id="newReplace" placeholder="替换建议（自动生成，可空）" style="flex:2;min-width:120px">
+        <button class="btn btn-primary btn-small" onclick="addWord()">➕ 添加</button>
+      </div>
+      <!-- 词条列表 -->
+      <div id="wordList" style="max-height:320px;overflow-y:auto;border:1px solid #e0d8cc;border-radius:8px;background:#fff"></div>
+      <div style="font-size:11px;color:#999;margin-top:8px">💡 点击词条内容可直接编辑，编辑后自动保存；点删除按钮移除该词</div>
+    </div>
+    <div class="paper-preview">
+      <div class="paper-preview-label">📋 实时纸板排版预览（输入文字即时更新）</div>
+      <div class="paper-preview-board">
+        <div id="paperPreviewText" class="paper-preview-text">在上方输入文字
+即可实时预览
+纸板排版效果</div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">2. 出镜模式</div>
+    <div class="mode-tabs">
+      <div class="mode-tab active" data-mode="person" onclick="setMode('person')"><span class="mode-icon">🧑</span>真人出镜举牌</div>
+      <div class="mode-tab" data-mode="nopersons" onclick="setMode('nopersons')"><span class="mode-icon">📝</span>不出镜（场景手写）</div>
+    </div>
+  </div>
+  <div class="section" id="personSection">
+    <div class="section-title">3. 人物设置</div>
+    <div class="gender-tabs">
+      <div class="gender-tab active" data-gender="female" onclick="setGender('female')">👩 女性</div>
+      <div class="gender-tab" data-gender="male" onclick="setGender('male')">👨 男性</div>
+    </div>
+    <div class="row">
+      <div class="col"><label>人设类型</label>
+        <select id="personType" onchange="toggleCustom('personType','customPersonInput')"></select>
+        <div id="customPersonInput" class="custom-input"><input type="text" id="customPerson" placeholder="输入人物描述"></div>
+      </div>
+      <div class="col"><label>发型</label><select id="hairstyle"></select></div>
+      <div class="col"><label>头发颜色</label><select id="hairColor"></select></div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <div class="col"><label>人物动作</label>
+        <select id="pose">
+          <option value="lookdown">低头看纸板（最自然）</option>
+          <option value="lookcamera">看镜头微笑</option>
+          <option value="side">侧脸看纸板</option>
+          <option value="playful">俏皮歪头看镜头</option>
+          <option value="onehand">一只手举纸板</option>
+          <option value="nearface">纸板举到脸旁</option>
+          <option value="sitting">坐在椅子上</option>
+          <option value="coverface">纸板挡半张脸</option>
+          <option value="surprised">惊讶表情</option>
+          <option value="wink">眨眼wink</option>
+          <option value="shy">害羞低头笑</option>
+        </select>
+      </div>
+      <div class="col"><label>服装</label>
+        <select id="clothing" onchange="toggleCustom('clothing','customClothingInput')"></select>
+        <div id="customClothingInput" class="custom-input"><input type="text" id="customClothing" placeholder="输入服装描述"></div>
+      </div>
+      <div class="col"><label>取景范围</label>
+        <select id="framing">
+          <option value="fullbody">全身入镜（推荐）</option>
+          <option value="halfupper">半身（膝盖以上）</option>
+          <option value="upper">上半身（胸部以上）</option>
+          <option value="closeup">特写（纸板+脸）</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <div class="col"><label>视线方向</label>
+        <select id="eyeline">
+          <option value="down">低头看纸板</option>
+          <option value="camera">看镜头</option>
+          <option value="side">看向侧面</option>
+          <option value="closed">闭着眼睛</option>
+        </select>
+      </div>
+      <div class="col" style="flex:2"><label>皮肤质感</label>
+        <div class="skin-grid" id="skinGrid">
+          <div class="skin-card active" data-skin="natural" onclick="selectSkin(this)"><div class="skin-preview skin-natural"></div>自然素颜</div>
+          <div class="skin-card" data-skin="lightmakeup" onclick="selectSkin(this)"><div class="skin-preview skin-lightmakeup"></div>淡妆底妆</div>
+          <div class="skin-card" data-skin="freckle" onclick="selectSkin(this)"><div class="skin-preview skin-freckle"></div>有雀斑</div>
+          <div class="skin-card" data-skin="flaw" onclick="selectSkin(this)"><div class="skin-preview skin-flaw"></div>痘印瑕疵</div>
+          <div class="skin-card" data-skin="oily" onclick="selectSkin(this)"><div class="skin-preview skin-oily"></div>油性皮肤</div>
+          <div class="skin-card" data-skin="dry" onclick="selectSkin(this)"><div class="skin-preview skin-dry"></div>干性哑光</div>
+          <div class="skin-card" data-skin="mobile" onclick="selectSkin(this)"><div class="skin-preview skin-mobile"></div>手机拍摄</div>
+          <div class="skin-card" data-skin="hyperreal" onclick="selectSkin(this)"><div class="skin-preview skin-hyperreal"></div>超真实皮肤</div>
+        </div>
+      </div>
+    </div>
+    <div class="seed-box">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="lockPerson" style="width:auto" onchange="toggleSeed()"> 🔒 锁定人物一致性（开启后每次生成复用同一段人物特征描述，保证同一个人）
+      </label>
+      <div id="seedArea" style="display:none;margin-top:8px">
+        <textarea id="personSeed" placeholder="点击下方按钮生成人物种子，或手动输入固定的人物特征描述（脸型、五官、痣、疤痕等独特标识）">一位24岁中国女生，鹅蛋脸，左眼下方有一颗小痣，右眉尾有一道浅疤，鼻梁高挺，嘴唇偏薄，左耳戴小耳钉，锁骨处有一颗小痣，身材高挑偏瘦，左手腕戴细红绳</textarea>
+        <div class="seed-actions">
+          <button class="btn btn-secondary btn-small" onclick="generateSeed()">🎲 随机生成种子</button>
+          <button class="btn btn-secondary btn-small" onclick="copySeed()">📋 复制种子</button>
+          <span style="font-size:11px;color:#999;align-self:center">种子越具体，人物一致性越高</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section hidden-section" id="nopersonsSection">
+    <div class="section-title">3. 不出镜场景设置</div>
+    <div class="row">
+      <div class="col"><label>手写载体</label>
+        <select id="noPersonCarrier">
+          <option value="desknote">桌面便签纸（俯拍）</option>
+          <option value="notebook">笔记本上写字（翻开）</option>
+          <option value="blackboard">黑板/白板上写字</option>
+          <option value="stickynote">便利贴贴在墙上/冰箱</option>
+          <option value="letter">信纸放在桌面上</option>
+          <option value="wallpaper">墙上贴的手写纸条</option>
+          <option value="coffeecup">咖啡杯旁的手写小卡片</option>
+          <option value="bookmark">手写书签夹在书里</option>
+          <option value="mirror">镜子上的口红字/便签</option>
+          <option value="window">窗户玻璃上的手写</option>
+        </select>
+      </div>
+      <div class="col"><label>拍摄视角</label>
+        <select id="noPersonAngle">
+          <option value="topdown">俯拍（从上往下）</option>
+          <option value="45degree">45度斜拍</option>
+          <option value="front">正面平视</option>
+          <option value="side">侧面拍摄</option>
+          <option value="closeup">特写聚焦文字</option>
+        </select>
+      </div>
+      <div class="col"><label>桌面/场景道具</label>
+        <select id="noPersonProps">
+          <option value="coffee">咖啡杯+勺子</option>
+          <option value="plant">小盆栽+绿植</option>
+          <option value="book">书本+眼镜</option>
+          <option value="phone">手机+耳机</option>
+          <option value="flower">干花+花瓶</option>
+          <option value="snack">零食+饮料</option>
+          <option value="pen">钢笔+墨水</option>
+          <option value="clean">干净桌面无道具</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">4. 手写字体风格（10种，动态错落预览）</div>
+    <div class="preview-grid" id="fontGrid"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">5. 笔 / 纸板 / 颜色</div>
+    <div class="row">
+      <div class="col"><label>笔的类型</label>
+        <select id="penType">
+          <option value="thickmarker">粗头马克笔（最清晰）</option>
+          <option value="thinmarker">细头马克笔</option>
+          <option value="gel05">中性笔0.5mm</option>
+          <option value="gel038">中性笔0.38mm</option>
+          <option value="fountain">钢笔</option>
+          <option value="ballpoint">圆珠笔</option>
+          <option value="pencil2b">2B铅笔</option>
+          <option value="brushbig">大楷毛笔（粗笔画）</option>
+          <option value="brushsmall">小楷毛笔（细笔画）</option>
+          <option value="xiuli">秀丽笔（软头）</option>
+          <option value="brushpen">书法软笔</option>
+          <option value="highlighter">荧光笔</option>
+          <option value="crayon">蜡笔</option>
+        </select>
+      </div>
+      <div class="col"><label>纸板类型</label>
+        <select id="paperType">
+          <option value="cardboard">米白色硬纸板</option>
+          <option value="whitea3">白色A3打印纸</option>
+          <option value="kraft">牛皮纸</option>
+          <option value="blackboard">黑色纸板（白字）</option>
+          <option value="corrugated">瓦楞纸板</option>
+          <option value="notebook">笔记本纸（横线）</option>
+          <option value="letter">复古信纸</option>
+          <option value="draft">草稿纸（褶皱）</option>
+          <option value="newspaper">报纸质感</option>
+        </select>
+      </div>
+      <div class="col"><label>文字颜色</label>
+        <select id="inkColor">
+          <option value="black">黑色</option>
+          <option value="darkgray">深灰色（更自然）</option>
+          <option value="darkblue">深蓝色</option>
+          <option value="red">红色</option>
+          <option value="blue">蓝色</option>
+          <option value="green">墨绿色</option>
+          <option value="purple">紫色</option>
+          <option value="brown">棕色</option>
+          <option value="pink">粉色</option>
+          <option value="gold">金色</option>
+          <option value="white">白色（配黑纸板）</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">6. 真人手写细节控制（8项，全拉满最真实）</div>
+    <div class="row">
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>下笔轻重差异</span><span id="pressureVal">明显</span></div><input type="range" id="pressure" min="1" max="3" value="3" oninput="updateSlider('pressure','pressureVal',['轻微','中等','明显'])"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>字大小差异</span><span id="sizeVal">明显</span></div><input type="range" id="sizeDiff" min="1" max="3" value="3" oninput="updateSlider('sizeDiff','sizeVal',['轻微','中等','明显'])"></div></div>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>字倾斜程度</span><span id="tiltVal">明显</span></div><input type="range" id="tilt" min="1" max="3" value="3" oninput="updateSlider('tilt','tiltVal',['轻微','中等','明显'])"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>排列错乱程度</span><span id="messVal">明显</span></div><input type="range" id="messy" min="1" max="3" value="3" oninput="updateSlider('messy','messVal',['轻微','中等','明显'])"></div></div>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>涂改/重描</span><span id="mistakeVal">少量</span></div><input type="range" id="mistake" min="0" max="2" value="1" oninput="updateSlider('mistake','mistakeVal',['无','少量','较多'])"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>连笔程度</span><span id="lianbiVal">少量</span></div><input type="range" id="lianbi" min="0" max="2" value="1" oninput="updateSlider('lianbi','lianbiVal',['无','少量','较多'])"></div></div>
+    </div>
+    <div class="row" style="margin-top:8px;">
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>飞白/断墨</span><span id="feibaiVal">较多</span></div><input type="range" id="feibai" min="0" max="2" value="2" oninput="updateSlider('feibai','feibaiVal',['无','少量','较多'])"></div></div>
+      <div class="col"><div class="slider-group"><div class="slider-label"><span>字间距不匀</span><span id="spacingVal">明显</span></div><input type="range" id="spacing" min="1" max="3" value="3" oninput="updateSlider('spacing','spacingVal',['轻微','中等','明显'])"></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">7. 背景（17种，带预览）</div>
+    <div class="preview-grid" id="bgGrid"></div>
+    <div id="customBgInput" class="custom-input" style="margin-top:8px;"><input type="text" id="customBg" placeholder="输入自定义背景描述"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">8. 光线（12种，带预览）</div>
+    <div class="preview-grid" id="lightGrid"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">9. 画质风格（4种，带预览）</div>
+    <div class="preview-grid" id="qualityGrid"></div>
+  </div>
+  <div class="section">
+    <div class="section-title">🎨 组合效果预览（背景+光线+画质，选完即时看效果）</div>
+    <div class="combo-preview" id="comboPreview">
+      <div class="combo-layer combo-bg" id="comboBg"></div>
+      <div class="combo-layer combo-portrait" id="comboPortrait"></div>
+      <div class="combo-layer combo-light" id="comboLight"></div>
+      <div class="combo-label" id="comboLabel">深蓝绒布窗帘 · 室内柔光 · 手机原相机</div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">10. 比例 / 图片类型 / AI工具</div>
+    <div class="row">
+      <div class="col"><label>图片比例</label>
+        <select id="ratio">
+          <option value="3:4">3:4 竖幅（推荐）</option>
+          <option value="9:16">9:16 全屏竖幅</option>
+          <option value="1:1">1:1 方形</option>
+          <option value="4:3">4:3 横幅</option>
+        </select>
+      </div>
+      <div class="col"><label>图片类型</label>
+        <select id="photoType">
+          <option value="static">静态照片（普通）</option>
+          <option value="live">Live Photo 实况图（动态抓拍）</option>
+          <option value="burst">连拍抓拍（动感瞬间）</option>
+          <option value="longexposure">长曝光（光影拖尾）</option>
+        </select>
+      </div>
+      <div class="col"><label>目标AI工具</label>
+        <select id="aiTool">
+          <option value="doubao">豆包/即梦（中文）</option>
+          <option value="midjourney">Midjourney（英文+参数）</option>
+          <option value="sd">Stable Diffusion（英文+权重）</option>
+          <option value="general">通用中文AI</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-primary" onclick="generate()">✨ 生成提示词（含负面词）</button>
+    <button class="btn btn-secondary" onclick="copyAll()">📋 复制全部</button>
+    <button class="btn btn-secondary" onclick="clearAll()">🗑️ 清空</button>
+  </div>
+  <div class="section" id="outputSection" style="display:none;">
+    <div class="section-title">生成结果（正向提示词 + 负面提示词）</div>
+    <div id="outputArea"></div>
+  </div>
+  <div class="tip">
+    <strong>💡 完全版使用指南：</strong><br>
+    1. <strong>负面提示词</strong>：每条结果下方都有红色框的负面词，复制到AI工具的"负面提示词/Negative Prompt"框里，AI脸/手指畸形/文字乱码直接减少80%<br>
+    2. <strong>人物锁定</strong>：开启后每次生成复用同一段人物种子，建议先"随机生成种子"再微调，把痣/疤/饰品等独特标识写进去，一致性最高<br>
+    3. <strong>合规检测</strong>：输入文字自动检测，高危词标红并给替换建议，避免"烩面""喝茶"等谐音被判色情引流<br>
+    4. <strong>不出镜模式</strong>：适合日常内容混搭，俯拍桌面便签+咖啡杯，没有人物也能发，降低账号风险<br>
+    5. <strong>配置保存</strong>：调好的人设一键保存，下次直接加载，不用每次重新选
+  </div>
+</div>
+<script>
+const presets=["你在干嘛呀\n有没有想我呀\n老实交代\n是不是在看别的女人","找个饭搭子\n郑州同城 不挑食 AA制\n吃饭不玩手机\n有人一起吗","一个人也挺好的\n就是偶尔会想\n有人陪","今天上班差点迟到\n跑了一路\n口红都花了\n打工人谁懂啊","郑州的姐妹看过来\n24岁 金水 慢热\n找饭搭子逛展搭子\n有人一起吗","一张你看向镜头的萌萌照\n文案：你在干嘛呀\n有没有想我呀\n配上这首歌\n超有感觉"];
+const dangerWords=[
+  // 涉黄引流谐音/高危
+  {word:'烩面',level:'danger',reason:'谐音"会面"，美女+同城+烩面组合易被判色情引流',replace:'河南烩面 / 今天吃了碗面 / 羊肉面'},
+  {word:'喝茶',level:'danger',reason:'暗示特殊服务，高危词',replace:'喝奶茶 / 喝咖啡 / 喝饮料 / 喝东西'},
+  {word:'约茶',level:'danger',reason:'暗示特殊服务',replace:'约咖啡 / 约奶茶 / 一起喝东西'},
+  {word:'品茶',level:'danger',reason:'暗示特殊服务',replace:'喝咖啡 / 喝奶茶'},
+  {word:'重庆小面',level:'warn',reason:'谐音"约面"，有引流嫌疑',replace:'吃了碗小面 / 重庆面馆'},
+  {word:'约吗',level:'danger',reason:'直接引流邀约，易被判违规',replace:'有人一起吗 / 找个搭子 / 周末有约吗'},
+  {word:'约不约',level:'danger',reason:'直接引流邀约',replace:'有人一起吗 / 找搭子'},
+  {word:'出来玩',level:'warn',reason:'有线下邀约嫌疑',replace:'周末有一起逛的吗 / 找逛吃搭子'},
+  {word:'出来见面',level:'warn',reason:'线下邀约',replace:'找个逛展搭子 / 找饭搭子'},
+  {word:'私信',level:'warn',reason:'站外引流引导',replace:'评论区聊 / 主页有联系方式'},
+  {word:'加v',level:'danger',reason:'站外引流，直接违规',replace:'评论区聊'},
+  {word:'加微信',level:'danger',reason:'站外引流',replace:'评论区聊'},
+  {word:'上门',level:'danger',reason:'高危词，涉黄嫌疑',replace:''},
+  {word:'全套',level:'danger',reason:'高危词，涉黄嫌疑',replace:''},
+  {word:'服务',level:'warn',reason:'搭配美女图易被判违规',replace:''},
+  {word:'同城交友',level:'warn',reason:'搭配美女图易限流，建议用更自然的表达',replace:'找搭子 / 饭搭子 / 逛展搭子'},
+  {word:'附近的人',level:'warn',reason:'平台敏感词',replace:'郑州的朋友 / 同城搭子'},
+  {word:'扣1',level:'warn',reason:'互动引导词，图片内出现易限流',replace:'（互动引导放发布文案，不要放图片里）'},
+  {word:'评论区',level:'warn',reason:'图片内出现互动引导词',replace:'（互动引导放发布文案）'},
+  // 低俗/性暗示
+  {word:'约炮',level:'danger',reason:'低俗涉黄，直接违规',replace:''},
+  {word:'一夜情',level:'danger',reason:'低俗涉黄',replace:''},
+  {word:'包养',level:'danger',reason:'低俗涉黄',replace:''},
+  {word:'干爹',level:'danger',reason:'低俗暗示',replace:''},
+  {word:'撩骚',level:'danger',reason:'低俗',replace:'聊天 / 交朋友'},
+  {word:'骚',level:'warn',reason:'低俗用词',replace:''},
+  {word:'性感',level:'warn',reason:'搭配人物图易被判低俗',replace:''},
+  {word:'诱惑',level:'warn',reason:'低俗暗示',replace:''},
+  // 脏话/辱骂
+  {word:'卧槽',level:'danger',reason:'脏话，不文明用语，易被判违规',replace:'天哪 / 我的天 / 哇塞'},
+  {word:'我操',level:'danger',reason:'脏话',replace:'天哪 / 我的天'},
+  {word:'操',level:'danger',reason:'脏话',replace:''},
+  {word:'草泥马',level:'danger',reason:'脏话谐音辱骂',replace:''},
+  {word:'草你妈',level:'danger',reason:'脏话辱骂',replace:''},
+  {word:'傻逼',level:'danger',reason:'脏话辱骂',replace:''},
+  {word:'傻b',level:'danger',reason:'脏话辱骂',replace:''},
+  {word:'煞笔',level:'danger',reason:'脏话谐音',replace:''},
+  {word:'妈的',level:'danger',reason:'脏话',replace:'天哪 / 真是的'},
+  {word:'尼玛',level:'danger',reason:'脏话谐音',replace:'天哪 / 真是的'},
+  {word:'你妈',level:'danger',reason:'辱骂',replace:''},
+  {word:'叫爸爸',level:'warn',reason:'低俗/侮辱性用语，不适合交友账号',replace:''},
+  {word:'你爹',level:'danger',reason:'辱骂',replace:''},
+  {word:'我是你爹',level:'danger',reason:'辱骂',replace:''},
+  {word:'儿子',level:'warn',reason:'搭配侮辱语境易被判不文明',replace:''},
+  {word:'垃圾',level:'warn',reason:'辱骂',replace:''},
+  {word:'滚',level:'warn',reason:'不文明用语',replace:''},
+  {word:'去死',level:'danger',reason:'辱骂/暴力倾向',replace:''},
+  {word:'废物',level:'warn',reason:'辱骂',replace:''},
+  {word:'白痴',level:'warn',reason:'辱骂',replace:''},
+  {word:'脑残',level:'danger',reason:'辱骂',replace:''},
+  {word:'智障',level:'danger',reason:'辱骂',replace:''},
+  {word:'贱人',level:'danger',reason:'辱骂',replace:''},
+  {word:'婊子',level:'danger',reason:'辱骂/低俗',replace:''},
+  {word:'王八蛋',level:'danger',reason:'辱骂',replace:''},
+  {word:'狗东西',level:'danger',reason:'辱骂',replace:''},
+  {word:'放屁',level:'warn',reason:'不文明用语',replace:''},
+  {word:'屁',level:'warn',reason:'不文明用语',replace:''},
+  {word:'屎',level:'warn',reason:'不文明用语',replace:''},
+  {word:'尿',level:'warn',reason:'不文明用语',replace:''},
+  {word:'靠',level:'warn',reason:'脏话边缘词',replace:''},
+  {word:'干你',level:'danger',reason:'辱骂/低俗',replace:''},
+  {word:'日你',level:'danger',reason:'辱骂/低俗',replace:''}
+];
+// ===== 扩展违禁词库（来自四大平台违禁词清单，自动分类）=====
+const extraWordGroups=[
+  // 1. 绝对化极限词（广告法第九条，敏感级）
+  {level:'warn',reason:'广告法绝对化极限词，平台检测到会限流',replace:'我个人觉得 / 对我来说 / 我用过的里面很喜欢的',words:['最好','最佳','最优','最棒','最高','最低','最便宜','最先进','最流行','最火','最划算','最赚','最具','最爱','最优秀','最新','最顶级','第一','中国第一','全国第一','全网第一','销量第一','排名第一','行业第一','口碑第一','人气第一','质量第一','世界第一','NO.1','TOP1','唯一','独一无二','仅此一家','仅此一次','仅此一款','一流','第一品牌','国家级','世界级','全球级','宇宙级','极品','极佳','绝佳','极致','顶级','顶尖','尖端','终极','首个','首选','首发','首家','全球首发','全国首家','全网首发','独家','独创','独家配方','史无前例','绝无仅有','万能','永久','100%有效','百分百保证','零风险','零差评','必备','绝对','完美','天花板','YYDS','绝绝子','必入','闭眼买','封神','精选','热门','推荐','立即']},
+  // 2. 权威性/国家机关关联词（高危）
+  {level:'danger',reason:'权威性/国家机关关联，严禁使用',replace:'经过XX检测认证',words:['国家领导人推荐','国家机关推荐','特供','专供','国宴专用','政协用酒','人民大会堂','全国人大','军队','政府定价','国家机关专供','驰名商标','质量免检','国家免检','免抽检','老字号']},
+  // 3. 虚假承诺/效果保证类（高危）
+  {level:'danger',reason:'虚假承诺/效果保证，易被判违规',replace:'很多用户反馈使用感不错',words:['无效退款','无效包退','买一送十','100%见效','永不反弹','彻底根治','药到病除','稳赚','保本','高收益','躺赚','月入过万','日赚千元','暴富','财富自由','随时结束','马上降价','最后一天','错过再等一年','秒杀','抢爆','万人疯抢','再不抢就没了','限量秒杀','保收益','无风险']},
+  // 4. 医疗/健康功效类（高危，非医疗产品严禁）
+  {level:'danger',reason:'医疗/健康功效词，非医疗产品严禁使用',replace:'改善 / 舒缓 / 呵护',words:['治疗','治愈','消炎','防癌','抗癌','提高免疫力','增强抵抗力','滋阴','补阳','减肥','清热','解毒','排毒','祛斑','祛疤','祛痘','美白','抗老','抗衰老','淡印','修复屏障','根除泛红','生发','瘦脸','去除皱纹','缓解痛经','改善内分泌','强身健体','排毒养颜','医用敷料','械字号','药字号','处方药','纯天然','无添加','0农残','无农药残留','抗敏','杀菌','祛黄','有机','绿色食品','无公害']},
+  // 5. 导流/引流类（高危，平台重点打击）
+  {level:'danger',reason:'站外引流/跨平台导流，平台重点打击',replace:'主页有更多内容分享',words:['微信','加微','VX','微心','威信','QQ','QQ号','手机号','电话号码','淘宝','京东','拼多多','B站','知乎','微博','二维码','微信号','非平台链接','点击链接','私信领取','点赞关注领资料','同名抖音','同名小红书','加我微信']},
+  // 6. 封建迷信/不良价值观（高危）
+  {level:'danger',reason:'封建迷信/不良价值观，严禁使用',replace:'',words:['算命','占卜','手相','面相','风水','保你平安','求姻缘','生男女宝宝','转运','辟邪','灵异事件','鬼神','做法事','处对象','网恋','陪玩','黄腔','露肉','勾引','调戏','搔话']},
+  // 7. 诱导互动/欺骗类（敏感）
+  {level:'warn',reason:'诱导互动/欺骗类，易限流',replace:'更多信息可以看简介',words:['点击有惊喜','领取奖品','恭喜中奖','全民免费','一键三连','转发抽奖','不转不是中国人','转发送好运','互关互赞']},
+  // 8. 金融理财类（高危）
+  {level:'danger',reason:'金融违规承诺，严禁使用',replace:'理财心得分享，仅供参考',words:['荐股','牛股','涨停','内幕消息','代客理财','代操作','跟单']},
+  // 9. 教育培训类（高危）
+  {level:'danger',reason:'教育培训违规承诺，严禁使用',replace:'',words:['保过','包过','内部资料','内部资源','命题老师参与','考官推荐','升学率100%','签约通过','名校毕业','保录取','保分']},
+  // 10. 食品生鲜类（敏感/高危）
+  {level:'warn',reason:'食品类违规宣传，无认证不可使用',replace:'',words:['最甜','最好吃','不甜不要钱','绝无坏果','降血压','降血糖']}
+];
+extraWordGroups.forEach(g=>{
+  g.words.forEach(w=>{
+    if(!dangerWords.some(d=>d.word===w)){
+      dangerWords.push({word:w,level:g.level,reason:g.reason,replace:g.replace});
+    }
+  });
+});
+// 保存默认词库备份（用于恢复）
+const DEFAULT_DANGER_WORDS=JSON.parse(JSON.stringify(dangerWords));
+// 从localStorage加载自定义词库
+function loadWords(){
+  try{
+    const saved=localStorage.getItem('customDangerWords');
+    if(saved){dangerWords.length=0;JSON.parse(saved).forEach(w=>dangerWords.push(w));}
+  }catch(e){}
+  updateWordCount();
+}
+function saveWords(){
+  localStorage.setItem('customDangerWords',JSON.stringify(dangerWords));
+  updateWordCount();
+}
+function updateWordCount(){
+  const cnt=dangerWords.length;
+  document.getElementById('wordCount').textContent='共'+cnt+'个违禁词';
+  document.getElementById('wmCount').textContent=cnt;
+}
+function toggleWordManager(){
+  const m=document.getElementById('wordManager');
+  m.style.display=m.style.display==='none'?'block':'none';
+  if(m.style.display==='block')renderWordList();
+}
+function renderWordList(){
+  const list=document.getElementById('wordList');
+  list.innerHTML='';
+  dangerWords.forEach((w,i)=>{
+    const row=document.createElement('div');
+    row.className='word-item '+(w.level==='danger'?'danger-row':'warn-row');
+    row.innerHTML=`
+      <input class="w-word" value="${w.word.replace(/"/g,'&quot;')}" onchange="updateWord(${i},'word',this.value)" placeholder="词">
+      <select class="w-level" onchange="updateWord(${i},'level',this.value)">
+        <option value="danger" ${w.level==='danger'?'selected':''}>🔴高危</option>
+        <option value="warn" ${w.level==='warn'?'selected':''}>⚠️敏感</option>
+      </select>
+      <input class="w-reason" value="${(w.reason||'').replace(/"/g,'&quot;')}" onchange="updateWord(${i},'reason',this.value)" placeholder="原因">
+      <input class="w-replace" value="${(w.replace||'').replace(/"/g,'&quot;')}" onchange="updateWord(${i},'replace',this.value)" placeholder="替换建议">
+      <button class="w-del" onclick="deleteWord(${i})">删除</button>`;
+    list.appendChild(row);
+  });
+}
+function updateWord(idx,field,val){
+  dangerWords[idx][field]=val;
+  saveWords();
+}
+function deleteWord(idx){
+  if(!confirm('确定删除这个违禁词吗？'))return;
+  dangerWords.splice(idx,1);
+  saveWords();
+  renderWordList();
+}
+function autoClassify(word){
+  const w=word.trim();
+  if(!w)return null;
+  // 1. 脏话/辱骂类（最常见）
+  const dirtyExact=['卧槽','我操','草泥马','草你妈','傻逼','傻b','煞笔','妈的','尼玛','你妈','叫爸爸','你爹','我是你爹','去死','贱人','婊子','王八蛋','狗东西','放屁','干你','日你','脑残','智障','废物','垃圾','白痴','滚蛋','狗屎','他妈的','去你妈','操你','草你','狗娘养','杂种','畜生','混蛋','王八蛋','龟儿子','兔崽子'];
+  if(dirtyExact.some(d=>w===d||w.includes(d))){
+    return {level:'danger',reason:'脏话/辱骂/不文明用语，平台检测到会限流或违规',replace:'天哪 / 真是的 / 哇塞 / 我的天（建议删除）'};
+  }
+  // 脏话单字/短词
+  const dirtyChars=['操','草','逼','屁','屎','尿','贱','婊','滚','靠'];
+  if(w.length<=3&&dirtyChars.some(c=>w.includes(c))){
+    return {level:'danger',reason:'脏话/不文明用语',replace:'天哪 / 真是的（建议删除）'};
+  }
+  // 2. 涉黄/低俗类
+  const sexWords=['约炮','一夜情','包养','干爹','撩骚','骚','性感','诱惑','上门','全套','服务','裸','胸','腿玩年','福利姬','外围','小三','二奶','情人','约会','开房','床'];
+  if(sexWords.some(s=>w.includes(s))){
+    if(['上门','全套','约炮','一夜情','包养','外围'].some(s=>w.includes(s)))
+      return {level:'danger',reason:'涉黄/低俗高危词，直接违规',replace:''};
+    return {level:'danger',reason:'低俗/性暗示，搭配人物图易被判违规',replace:''};
+  }
+  // 3. 站外引流类
+  if(['加v','加微信','加vx','加qq','加QQ','私信','私聊','联系方式','vx','V信'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'站外引流引导，平台直接违规',replace:'评论区聊 / 主页有联系方式'};
+  }
+  // 4. 引流邀约类
+  if(['约吗','约不约','出来玩','出来见面','见面','约一下','约个','奔现'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'线下引流邀约，易被判违规',replace:'有人一起吗 / 找个搭子 / 周末有约吗'};
+  }
+  // 5. 食物谐音引流类
+  if(['烩面','喝茶','约茶','品茶','重庆小面','小面'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'谐音"会面/约"，美女+同城+食物组合易被判色情引流',replace:'河南烩面 / 今天吃了碗面 / 喝奶茶喝咖啡'};
+  }
+  // 5.5 绝对化极限词（广告法）
+  if(/^(最|第一|唯一|顶级|顶尖|极品|绝佳|极致|终极|独家|独创|首个|首选|首发|首家|史无前例|绝无仅有|万能|永久|绝对|完美|天花板|YYDS|绝绝子|必入|闭眼买|封神|100%|百分百|零风险|零差评|必备|NO\.1|TOP1|国家级|世界级|全球级|宇宙级)/.test(w)||w.includes('全国第一')||w.includes('全网第一')||w.includes('销量第一')||w.includes('世界第一')){
+    return {level:'warn',reason:'广告法绝对化极限词，平台检测到会限流',replace:'我个人觉得 / 对我来说 / 我用过的里面很喜欢的'};
+  }
+  // 5.6 权威性/国家机关关联
+  if(['国家领导人','国家机关','特供','专供','国宴','人民大会堂','驰名商标','质量免检','国家免检','政府定价','军队','全国人大'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'权威性/国家机关关联，严禁使用',replace:'经过XX检测认证'};
+  }
+  // 5.7 虚假承诺/效果保证
+  if(['无效退款','无效包退','100%见效','永不反弹','彻底根治','药到病除','稳赚','保本','高收益','躺赚','月入过万','日赚千元','暴富','财富自由','秒杀','抢爆','万人疯抢','保收益','无风险','买一送十'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'虚假承诺/效果保证，易被判违规',replace:'很多用户反馈使用感不错'};
+  }
+  // 5.8 医疗/健康功效词
+  if(['治疗','治愈','消炎','防癌','抗癌','提高免疫力','增强抵抗力','滋阴','补阳','减肥','清热','解毒','排毒','祛斑','祛疤','祛痘','美白','抗老','抗衰老','修复屏障','根除泛红','生发','瘦脸','去除皱纹','缓解痛经','改善内分泌','强身健体','排毒养颜','医用敷料','械字号','药字号','处方药','抗敏','杀菌','祛黄'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'医疗/健康功效词，非医疗产品严禁使用',replace:'改善 / 舒缓 / 呵护'};
+  }
+  // 5.9 金融违规词
+  if(['荐股','牛股','涨停','内幕消息','代客理财','代操作','跟单'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'金融违规承诺，严禁使用',replace:'理财心得分享，仅供参考'};
+  }
+  // 5.10 教育违规词
+  if(['保过','包过','内部资料','内部资源','命题老师','考官推荐','升学率100%','签约通过','保录取','保分'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'教育培训违规承诺，严禁使用',replace:''};
+  }
+  // 5.11 封建迷信
+  if(['算命','占卜','手相','面相','风水','求姻缘','转运','辟邪','灵异','鬼神','做法事'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'封建迷信，严禁使用',replace:''};
+  }
+  // 6. 平台敏感词
+  if(['同城交友','附近的人','扣1','评论区','扣字','刷礼物','刷钱'].some(s=>w.includes(s))){
+    return {level:'warn',reason:'平台敏感词/互动引导，图片内出现易限流',replace:'找搭子 / 饭搭子（互动引导放发布文案）'};
+  }
+  // 7. 侮辱性称呼类
+  if(['爸爸','爹','儿子','孙子','废物','垃圾','白痴','弱智','残疾','丑','胖','穷'].some(s=>w.includes(s))){
+    return {level:'warn',reason:'侮辱性/攻击性用语，不适合交友账号',replace:''};
+  }
+  // 8. 暴力类
+  if(['打','杀','砍','死','弄死','整死','暴力','打架','斗殴'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'暴力/攻击性用语',replace:''};
+  }
+  // 9. 政治敏感（简单覆盖）
+  if(['习','共','党','政府','国家','台湾','香港','新疆'].some(s=>w.includes(s))){
+    return {level:'danger',reason:'政治敏感词，严禁使用',replace:''};
+  }
+  // 默认：敏感
+  return {level:'warn',reason:'用户添加的敏感词，建议谨慎使用',replace:''};
+}
+function autoFillWord(word){
+  const r=autoClassify(word);
+  if(!r)return;
+  document.getElementById('newLevel').value=r.level;
+  // 只在原因为空时自动填，避免覆盖用户已输入的
+  if(!document.getElementById('newReason').value)document.getElementById('newReason').value=r.reason;
+  if(!document.getElementById('newReplace').value)document.getElementById('newReplace').value=r.replace;
+}
+function addWord(){
+  const word=document.getElementById('newWord').value.trim();
+  if(!word){alert('请输入违禁词');return;}
+  if(dangerWords.some(w=>w.word===word)){alert('这个词已经存在了');return;}
+  // 兜底：如果原因或替换为空，自动生成
+  let reason=document.getElementById('newReason').value.trim();
+  let replace=document.getElementById('newReplace').value.trim();
+  let level=document.getElementById('newLevel').value;
+  const auto=autoClassify(word);
+  if(auto&&!reason)reason=auto.reason;
+  if(auto&&!replace)replace=auto.replace;
+  if(auto&&level!==auto.level&&!document.getElementById('newReason').value)level=auto.level;
+  dangerWords.push({word:word,level:level,reason:reason||'用户添加',replace:replace});
+  saveWords();
+  renderWordList();
+  document.getElementById('newWord').value='';
+  document.getElementById('newReason').value='';
+  document.getElementById('newReplace').value='';
+  document.getElementById('newLevel').value='danger';
+}
+function resetWords(){
+  if(!confirm('确定恢复默认词库吗？你自己添加的词会被清除。'))return;
+  dangerWords.length=0;
+  DEFAULT_DANGER_WORDS.forEach(w=>dangerWords.push(JSON.parse(JSON.stringify(w))));
+  saveWords();
+  renderWordList();
+  alert('已恢复默认词库');
+}
+const personData={female:[{v:'yujie',t:'你的御姐人设（24岁/大波浪）'},{v:'glasses',t:'戴眼镜女生'},{v:'normal',t:'普通年轻女生'},{v:'college',t:'清纯女大学生'},{v:'ol',t:'职场OL姐姐'},{v:'sport',t:'运动风女生'},{v:'art',t:'文艺女青年'},{v:'sweet',t:'甜妹'},{v:'cool',t:'酷飒女生'},{v:'mature',t:'轻熟少妇感'},{v:'middleage',t:'中年女性（35-45岁）'},{v:'elderly',t:'老年女性（55岁+）'},{v:'custom',t:'自定义'}],male:[{v:'handsome',t:'帅气年轻男生'},{v:'glasses',t:'戴眼镜男生'},{v:'normal',t:'普通年轻男生'},{v:'college',t:'男大学生'},{v:'ol',t:'职场精英男'},{v:'sport',t:'运动型男'},{v:'art',t:'文艺男青年'},{v:'cool',t:'酷帅男生'},{v:'mature',t:'轻熟大叔感'},{v:'middleage',t:'中年男性（35-45岁）'},{v:'elderly',t:'老年男性（55岁+）'},{v:'sunshine',t:'阳光大男孩'},{v:'custom',t:'自定义'}]};
+const hairData={female:[{v:'wave',t:'乌黑及腰大波浪'},{v:'longstraight',t:'黑长直'},{v:'shoulder',t:'齐肩微卷发'},{v:'bob',t:'波波头短发'},{v:'ponytail',t:'高马尾'},{v:'halfbun',t:'半丸子头'},{v:'bangs',t:'齐刘海长直发'},{v:'twintail',t:'双马尾'},{v:'shorthair',t:'利落短发'},{v:'curly',t:'羊毛卷短发'},{v:'braid',t:'麻花辫'}],male:[{v:'short',t:'清爽短发'},{v:'undercut',t:'两边剃短'},{v:'curly',t:'自然卷发'},{v:'perm',t:'纹理烫'},{v:'long',t:'中长发（艺术感）'},{v:'buzz',t:'寸头'},{v:'bangs',t:'齐刘海短发'},{v:'slick',t:'大背头'},{v:'messy',t:'凌乱碎发'},{v:'dread',t:'脏辫'}]};
+const hairColorData=[{v:'black',t:'自然黑色'},{v:'darkbrown',t:'深棕色'},{v:'lightbrown',t:'浅棕色/栗色'},{v:'golden',t:'金黄色/亚麻色'},{v:'red',t:'酒红色/红棕色'},{v:'gray',t:'灰白色（中老年）'},{v:'white',t:'纯白色（老年）'},{v:'blackgray',t:'黑白夹杂（花白）'},{v:'highlights',t:'黑色挑染浅色'},{v:'dyed',t:'时尚染色（蓝/粉/紫）'}];
+const clothingData={female:[{v:'denim',t:'蓝色牛仔衬衫+牛仔裤'},{v:'hoodie',t:'白色卫衣+休闲裤'},{v:'knit',t:'米色针织衫+阔腿裤'},{v:'dress',t:'浅色长袖连衣裙（过膝）'},{v:'suit',t:'黑色小西装+白T恤'},{v:'stripe',t:'条纹T恤+工装裤'},{v:'sweaterskirt',t:'毛衣+半身裙'},{v:'baseball',t:'棒球服+运动裤'},{v:'camiscard',t:'吊带+针织开衫（得体）'},{v:'trench',t:'卡其色风衣+内搭'},{v:'hanfu',t:'新中式汉服上衣'},{v:'jk',t:'JK制服（衬衫+格裙）'},{v:'tshirt',t:'白T恤+牛仔裤'},{v:'custom',t:'自定义'}],male:[{v:'denim',t:'蓝色牛仔衬衫+牛仔裤'},{v:'hoodie',t:'黑色卫衣+工装裤'},{v:'shirt',t:'白衬衫+黑西裤'},{v:'tshirt',t:'白T恤+休闲裤'},{v:'suit',t:'黑色西装+白衬衫'},{v:'baseball',t:'棒球服+运动裤'},{v:'jacket',t:'皮夹克+牛仔裤'},{v:'trench',t:'卡其色风衣+内搭'},{v:'knit',t:'深色针织衫+休闲裤'},{v:'vest',t:'马甲+白T恤'},{v:'sport',t:'运动套装'},{v:'custom',t:'自定义'}]};
+const fontStyles=[{v:'cute',name:'可爱圆润体',ff:"'Comic Sans MS','Marker Felt',cursive",fw:'bold',size:26},{v:'boldmarker',name:'粗犷马克笔体',ff:"'Impact','Arial Black',sans-serif",fw:'900',size:24,ls:'-1px'},{v:'pen',name:'清秀钢笔体',ff:"'Georgia','Times New Roman',serif",fw:'normal',size:28,it:true},{v:'cursive',name:'潦草连笔体',ff:"'Brush Script MT','Segoe Script',cursive",fw:'normal',size:30},{v:'child',name:'小学生稚嫩体',ff:"'Comic Sans MS',cursive",fw:'normal',size:22,ls:'2px'},{v:'thin',name:'文艺细体',ff:"'Helvetica Neue',sans-serif",fw:'300',size:26,ls:'1px'},{v:'domineering',name:'霸气粗体',ff:"'Arial Black',sans-serif",fw:'900',size:24,skw:-3},{v:'cheese',name:'网红奶酪体',ff:"'Comic Sans MS',cursive",fw:'bold',size:25},{v:'shoujin',name:'瘦金体风格',ff:"'Songti SC','SimSun',serif",fw:'300',size:26,ls:'3px'},{v:'xingshu',name:'行书连笔',ff:"'KaiTi','STKaiti',serif",fw:'normal',size:30,it:true}];
+const bgStyles=[{v:'curtain',name:'深蓝绒布窗帘',cls:'bg-curtain',icon:'🪟'},{v:'whitewall',name:'纯白墙面',cls:'bg-whitewall',icon:'⬜'},{v:'beigewall',name:'米白墙面',cls:'bg-beigewall',icon:'🟫'},{v:'cement',name:'灰色水泥墙',cls:'bg-cement',icon:'🧱'},{v:'brick',name:'复古砖墙',cls:'bg-brick',icon:'🏚️'},{v:'wood',name:'木质墙面',cls:'bg-wood',icon:'🪵'},{v:'livingroom',name:'室内客厅',cls:'bg-livingroom',icon:'🛋️'},{v:'bedroom',name:'卧室',cls:'bg-bedroom',icon:'🛏️'},{v:'office',name:'办公室',cls:'bg-office',icon:'💻'},{v:'cafe',name:'咖啡馆',cls:'bg-cafe',icon:'☕'},{v:'bookstore',name:'书店',cls:'bg-bookstore',icon:'📚'},{v:'street',name:'户外街道',cls:'bg-street',icon:'🏙️'},{v:'park',name:'公园绿植',cls:'bg-park',icon:'🌳'},{v:'studiowhite',name:'影棚纯白',cls:'bg-studiowhite',icon:'📸'},{v:'studiogray',name:'影棚灰色',cls:'bg-studiogray',icon:'🎬'},{v:'studiopink',name:'影棚粉色',cls:'bg-studiopink',icon:'💗'},{v:'custom',name:'自定义',cls:'',icon:'✏️'}];
+const lightStyles=[{v:'soft',name:'室内柔光',cls:'light-soft',icon:'💡'},{v:'window',name:'窗边自然光',cls:'light-window',icon:'🌤️'},{v:'warmlamp',name:'暖黄灯光',cls:'light-warmlamp',icon:'🟡'},{v:'flash',name:'闪光灯直打',cls:'light-flash',icon:'📸'},{v:'backlight',name:'侧逆光',cls:'light-backlight',icon:'🌅'},{v:'toplight',name:'顶光',cls:'light-toplight',icon:'🔦'},{v:'coldwhite',name:'冷白光',cls:'light-coldwhite',icon:'❄️'},{v:'candle',name:'烛光暖光',cls:'light-candle',icon:'🕯️'},{v:'cloudy',name:'阴天散射光',cls:'light-cloudy',icon:'☁️'},{v:'spotlight',name:'聚光灯',cls:'light-spotlight',icon:'🎯'},{v:'goldenhour',name:'日落黄金时刻',cls:'light-goldenhour',icon:'🌇'},{v:'neon',name:'霓虹灯光',cls:'light-neon',icon:'🌈'}];
+const qualityStyles=[{v:'mobile',name:'手机原相机',cls:'quality-mobile',icon:'📱'},{v:'dslr',name:'单反高清',cls:'quality-dslr',icon:'📷'},{v:'film',name:'胶片颗粒',cls:'quality-film',icon:'🎞️'},{v:'polaroid',name:'拍立得复古',cls:'quality-polaroid',icon:'🖼️'}];
+let currentMode='person',currentGender='female',selectedFont='cute',selectedSkin='natural',selectedBg='curtain',selectedLight='soft',selectedQuality='mobile';
+// ===== 卡密授权系统 =====
+const ADMIN_PASS='admin888'; // 管理员密码，可自行修改
+let cardConfig={url:''};
+let cardData={}; // 卡密库数据
+function loadCardConfig(){
+  try{const s=localStorage.getItem('cardConfig');if(s)cardConfig={...cardConfig,...JSON.parse(s)};}catch(e){}
+  document.getElementById('cardUrlInput').value=cardConfig.url||'';
+  document.getElementById('currentUrlDisplay').textContent='当前卡密库：'+(cardConfig.url||'未设置（使用本地演示卡密）');
+}
+function saveCardUrl(){
+  cardConfig.url=document.getElementById('cardUrlInput').value.trim();
+  localStorage.setItem('cardConfig',JSON.stringify(cardConfig));
+  document.getElementById('currentUrlDisplay').textContent='当前卡密库：'+(cardConfig.url||'未设置');
+  alert('卡密库地址已保存');
+  loadCardData();
+}
+// 生成随机卡密 ZS-XXXX-XXXX
+function genCardCode(){
+  const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s='ZS-';
+  for(let i=0;i<4;i++)s+=c[Math.floor(Math.random()*c.length)];
+  s+='-';
+  for(let i=0;i<4;i++)s+=c[Math.floor(Math.random()*c.length)];
+  return s;
+}
+// 加载卡密库数据
+async function loadCardData(){
+  if(!cardConfig.url){
+    // 无在线地址，用本地演示数据
+    cardData=JSON.parse(localStorage.getItem('localCardData')||'{}');
+    return cardData;
+  }
+  try{
+    const res=await fetch(cardConfig.url+'?t='+Date.now());
+    cardData=await res.json();
+    return cardData;
+  }catch(e){
+    console.error('加载卡密库失败',e);
+    cardData={};
+    return cardData;
+  }
+}
+// 验证卡密
+async function verifyCard(){
+  const input=document.getElementById('cardInput').value.trim().toUpperCase();
+  const msg=document.getElementById('cardMsg');
+  const btn=document.getElementById('cardVerifyBtn');
+  if(!input){msg.className='card-msg error';msg.textContent='请输入卡密';return;}
+  btn.disabled=true;msg.className='card-msg loading';msg.textContent='正在验证...';
+  await loadCardData();
+  const card=cardData[input];
+  if(!card){
+    // 检查本地缓存的卡密（离线模式）
+    const cached=JSON.parse(localStorage.getItem('cardAuth')||'null');
+    if(cached&&cached.card===input&&cached.expire>Date.now()){
+      unlockSuccess(input);return;
+    }
+    msg.className='card-msg error';msg.textContent='❌ 卡密不存在，请检查后重试';
+    btn.disabled=false;return;
+  }
+  if(card.active===false){
+    msg.className='card-msg error';msg.textContent='❌ 该卡密已被管理员作废';
+    btn.disabled=false;return;
+  }
+  if(card.expire&&card.expire!==0&&card.expire<Date.now()){
+    msg.className='card-msg error';msg.textContent='❌ 该卡密已过期（到期：'+new Date(card.expire).toLocaleDateString()+'）';
+    btn.disabled=false;return;
+  }
+  unlockSuccess(input);
+}
+function unlockSuccess(card){
+  const msg=document.getElementById('cardMsg');
+  msg.className='card-msg success';msg.textContent='✅ 验证成功，正在进入...';
+  // 缓存30天
+  localStorage.setItem('cardAuth',JSON.stringify({card:card,expire:Date.now()+30*24*60*60*1000,time:Date.now()}));
+  setTimeout(()=>{document.getElementById('cardLock').style.display='none';},800);
+}
+// 检查是否已授权
+function checkAuth(){
+  const cached=JSON.parse(localStorage.getItem('cardAuth')||'null');
+  if(cached&&cached.expire>Date.now()){
+    document.getElementById('cardLock').style.display='none';
+    return true;
+  }
+  return false;
+}
+// 管理员登录
+function showAdminLogin(){
+  const pass=prompt('请输入管理员密码：');
+  if(pass===ADMIN_PASS){
+    document.getElementById('adminPanel').style.display='flex';
+    loadCardConfig();
+    refreshCardList();
+  }else if(pass!==null){
+    alert('密码错误');
+  }
+}
+function closeAdmin(){document.getElementById('adminPanel').style.display='none';}
+// 生成新卡密
+function generateNewCard(){
+  const days=parseInt(document.getElementById('cardDuration').value);
+  const note=document.getElementById('cardNote').value.trim()||'未备注';
+  const code=genCardCode();
+  const expire=days===0?0:Date.now()+days*24*60*60*1000;
+  cardData[code]={expire:expire,note:note,active:true};
+  // 保存到本地
+  localStorage.setItem('localCardData',JSON.stringify(cardData));
+  const div=document.getElementById('generatedCard');
+  div.style.display='block';
+  div.innerHTML=`✅ 已生成：<span style="font-size:16px;letter-spacing:1px">${code}</span><br>有效期：${days===0?'永久':days+'天'}（到期：${days===0?'永久':new Date(expire).toLocaleDateString()}）<br>备注：${note}<br><span style="color:#999;font-size:11px">已保存到本地卡密库。如使用在线JSON，请手动添加此卡密到JSON文件。</span>`;
+  refreshCardList();
+}
+// 刷新卡密列表
+async function refreshCardList(){
+  await loadCardData();
+  const list=document.getElementById('adminCardList');
+  const keys=Object.keys(cardData);
+  document.getElementById('cardTotalCount').textContent=keys.length;
+  if(keys.length===0){list.innerHTML='<div style="padding:20px;text-align:center;color:#999;font-size:12px">暂无卡密，点击上方"生成卡密"创建</div>';return;}
+  list.innerHTML=keys.sort((a,b)=>(cardData[b].expire||0)-(cardData[a].expire||0)).map(code=>{
+    const c=cardData[code];
+    const now=Date.now();
+    let status='active',statusText='正常';
+    if(c.active===false){status='disabled';statusText='已作废';}
+    else if(c.expire&&c.expire!==0&&c.expire<now){status='expired';statusText='已过期';}
+    const expireText=c.expire===0?'永久':new Date(c.expire).toLocaleDateString();
+    return `<div class="card-list-item">
+      <span class="card-code">${code}</span>
+      <span class="card-expire">📅 ${expireText}</span>
+      <span class="card-note">${c.note||''}</span>
+      <span class="card-status ${status}">${statusText}</span>
+      <span class="card-actions">
+        <button class="btn-toggle" onclick="toggleCard('${code}')">${c.active===false?'启用':'作废'}</button>
+        <button class="btn-del" onclick="deleteCard('${code}')">删除</button>
+      </span>
+    </div>`;
+  }).join('');
+}
+function toggleCard(code){
+  if(!cardData[code])return;
+  cardData[code].active=!cardData[code].active;
+  localStorage.setItem('localCardData',JSON.stringify(cardData));
+  refreshCardList();
+}
+function deleteCard(code){
+  if(!confirm('确定删除卡密 '+code+' 吗？'))return;
+  delete cardData[code];
+  localStorage.setItem('localCardData',JSON.stringify(cardData));
+  refreshCardList();
+}
+function exportCards(){
+  const json=JSON.stringify(cardData,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='卡密库_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click();
+}
+function clearLocalCardCache(){
+  if(!confirm('确定清除本机授权缓存吗？清除后需要重新输入卡密。'))return;
+  localStorage.removeItem('cardAuth');
+  alert('已清除，刷新页面后需要重新验证卡密');
+}
+// 回车验证
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('cardInput').addEventListener('keydown',e=>{if(e.key==='Enter')verifyCard();});
+});
+function init(){
+  loadCardConfig();
+  document.getElementById('cardLock').style.display='none'; // 关闭卡密验证，直接使用
+  loadWords();
+  setGender('female');
+  document.getElementById('hairColor').innerHTML=hairColorData.map(h=>`<option value="${h.v}">${h.t}</option>`).join('');
+  buildFontGrid();buildBgGrid();buildLightGrid();buildQualityGrid();loadConfigList();updateComboPreview();
+  document.getElementById('textInput').addEventListener('input',function(){document.getElementById('charCount').textContent=this.value.replace(/\n/g,'').length+'字';buildFontGrid();});
+}
+function setMode(m){currentMode=m;document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));document.getElementById('personSection').classList.toggle('hidden-section',m!=='person');document.getElementById('nopersonsSection').classList.toggle('hidden-section',m!=='nopersons');}
+function setGender(g){currentGender=g;document.querySelectorAll('.gender-tab').forEach(t=>t.classList.toggle('active',t.dataset.gender===g));document.getElementById('personType').innerHTML=personData[g].map(p=>`<option value="${p.v}">${p.t}</option>`).join('');document.getElementById('hairstyle').innerHTML=hairData[g].map(h=>`<option value="${h.v}">${h.t}</option>`).join('');document.getElementById('clothing').innerHTML=clothingData[g].map(c=>`<option value="${c.v}">${c.t}</option>`).join('');}
+function loadPreset(i){document.getElementById('textInput').value=presets[i];updatePaperPreview();checkCompliance();}
+function toggleCustom(sid,iid){document.getElementById(iid).classList.toggle('show',document.getElementById(sid).value==='custom');}
+function selectSkin(el){document.querySelectorAll('.skin-card').forEach(c=>c.classList.remove('active'));el.classList.add('active');selectedSkin=el.dataset.skin;updateComboPreview();}
+function updateSlider(id,labelId,labels){document.getElementById(labelId).textContent=labels[parseInt(document.getElementById(id).value)]||labels[0];}
+function toggleSeed(){document.getElementById('seedArea').style.display=document.getElementById('lockPerson').checked?'block':'none';}
+function checkCompliance(show){
+  const text=document.getElementById('textInput').value,result=document.getElementById('checkResult');
+  let found=[];
+  dangerWords.forEach(d=>{if(text.includes(d.word))found.push(d);});
+  if(found.length===0){
+    if(show){
+      result.className='check-result check-safe show';
+      result.innerHTML='✅ 未检测到高危词，文案安全，可以发布。';
+    }else{
+      result.className='check-result';
+      result.innerHTML='';
+    }
+  }else{
+    let hasDanger=found.some(f=>f.level==='danger');
+    let html=(hasDanger?'🔴 检测到 '+found.length+' 个违规/敏感词，强烈建议修改：':'⚠️ 检测到 '+found.length+' 个敏感词，建议注意：')+'<br><br>';
+    found.forEach((f,i)=>{
+      html+=`${i+1}. <span class="danger-word">${f.word}</span> — ${f.reason}`;
+      if(f.replace)html+=`<br>　　<span class="replace-suggest">→ 建议替换：${f.replace}</span>`;
+      html+='<br>';
+    });
+    result.className='check-result '+(hasDanger?'check-danger':'check-warn')+' show';
+    result.innerHTML=html;
+  }
+}
+function updatePaperPreview(){
+  const text=document.getElementById('textInput').value||'在上方输入文字\n即可实时预览\n纸板排版效果';
+  const font=fontStyles.find(f=>f.v===selectedFont)||fontStyles[0];
+  const colorMap={black:'#222',darkgray:'#444',darkblue:'#1a365d',red:'#c53030',blue:'#2b6cb0',green:'#276749',purple:'#553c9a',brown:'#744210',pink:'#d53f8c',gold:'#b7791f',white:'#fff'};
+  const color=colorMap[document.getElementById('inkColor').value]||'#222';
+  const lines=text.split('\n');let html='';
+  lines.forEach(line=>{
+    let lineHtml='<div style="margin:4px 0">';
+    line.split('').forEach(ch=>{
+      const sz=font.size+(Math.random()*6-3),rot=(Math.random()*8-4),y=(Math.random()*4-2);
+      lineHtml+=`<span style="display:inline-block;font-family:${font.ff};font-weight:${font.fw};font-size:${sz}px;color:${color};transform:rotate(${rot}deg) translateY(${y}px);margin:0 1px;${font.it?'font-style:italic':''}">${ch===' '?'&nbsp;':ch}</span>`;
+    });
+    lineHtml+='</div>';html+=lineHtml;
+  });
+  document.getElementById('paperPreviewText').innerHTML=html;
+}
+function generateSeed(){
+  const isMale=currentGender==='male';
+  const faceShapes=['鹅蛋脸','瓜子脸','圆脸','方脸','长脸','心形脸'],eyes=['桃花眼','丹凤眼','圆眼睛','杏眼','细长眼'],noses=['高挺鼻梁','塌鼻梁','鹰钩鼻','蒜头鼻','小巧鼻子'],mouths=['薄唇','厚唇','M唇','微笑唇','樱桃小嘴'];
+  const marks=['左眼下方有一颗小痣','右眉尾有一道浅疤','鼻梁上有一颗痣','嘴角有一颗痣','右耳有耳洞','左手腕有胎记','锁骨处有一颗小痣','下巴有一道小疤','右脸颊有雀斑','左耳戴小耳钉'];
+  const accessories=['左手腕戴细红绳','脖子戴细项链','右手戴银戒指','左耳戴小耳钉','常戴黑色发圈'];
+  const body=isMale?['身材偏瘦','身材匀称有肌肉','肩膀较宽','身高180左右']:['身材高挑偏瘦','曲线匀称','身高168左右','锁骨明显'];
+  document.getElementById('personSeed').value=`一位24岁中国${isMale?'男生':'女生'}，${faceShapes[Math.floor(Math.random()*faceShapes.length)]}，${eyes[Math.floor(Math.random()*eyes.length)]}，${noses[Math.floor(Math.random()*noses.length)]}，${mouths[Math.floor(Math.random()*mouths.length)]}，${marks[Math.floor(Math.random()*marks.length)]}，${marks[Math.floor(Math.random()*marks.length)]}，${accessories[Math.floor(Math.random()*accessories.length)]}，${body[Math.floor(Math.random()*body.length)]}`;
+}
+function copySeed(){navigator.clipboard.writeText(document.getElementById('personSeed').value);}
+function buildFontGrid(){
+  const grid=document.getElementById('fontGrid');grid.innerHTML='';
+  const rawText=(document.getElementById('textInput').value||'').replace(/\n/g,'').replace(/\s/g,'');
+  const previewText=rawText?rawText.substring(0,4):'你好呀';
+  fontStyles.forEach((f,idx)=>{
+    const card=document.createElement('div');card.className='preview-card'+(idx===0?' active':'');card.dataset.font=f.v;
+    card.onclick=()=>{document.querySelectorAll('#fontGrid .preview-card').forEach(c=>c.classList.remove('active'));card.classList.add('active');selectedFont=f.v;updatePaperPreview();};
+    const chars=previewText.split('');let charHtml='';
+    chars.forEach(ch=>{const randSize=f.size+(Math.random()*8-4),randRot=(Math.random()*10-5),randY=(Math.random()*6-3),randX=(Math.random()*4-2),fw=f.fw==='bold'?(Math.random()>0.5?'bold':'normal'):f.fw;charHtml+=`<span class="font-char" style="font-family:${f.ff};font-weight:${fw};font-size:${randSize}px;transform:rotate(${randRot}deg) translateY(${randY}px);margin:0 ${randX}px;${f.it?'font-style:italic':''};${f.ls?'letter-spacing:'+f.ls:''}">${ch}</span>`;});
+    card.innerHTML=`<div class="font-preview-img">${charHtml}</div><div class="preview-name">${f.name}</div>`;grid.appendChild(card);
+  });
+}
+function buildBgGrid(){
+  const grid=document.getElementById('bgGrid');grid.innerHTML='';
+  bgStyles.forEach((b,idx)=>{const card=document.createElement('div');card.className='preview-card'+(idx===0?' active':'');card.dataset.bg=b.v;card.onclick=()=>{document.querySelectorAll('#bgGrid .preview-card').forEach(c=>c.classList.remove('active'));card.classList.add('active');selectedBg=b.v;document.getElementById('customBgInput').classList.toggle('show',b.v==='custom');updateComboPreview();};const imgCls=b.cls?'preview-img '+b.cls:'preview-img';card.innerHTML=`<div class="${imgCls}"><span class="bg-preview-icon">${b.icon||''}</span></div><div class="preview-name">${b.name}</div>`;grid.appendChild(card);});
+}
+function buildLightGrid(){
+  const grid=document.getElementById('lightGrid');grid.innerHTML='';
+  lightStyles.forEach((l,idx)=>{const card=document.createElement('div');card.className='preview-card'+(idx===0?' active':'');card.dataset.light=l.v;card.onclick=()=>{document.querySelectorAll('#lightGrid .preview-card').forEach(c=>c.classList.remove('active'));card.classList.add('active');selectedLight=l.v;updateComboPreview();};card.innerHTML=`<div class="preview-img"><div class="portrait-base"></div><div class="light-base ${l.cls}"></div><span class="bg-preview-icon">${l.icon||''}</span></div><div class="preview-name">${l.name}</div>`;grid.appendChild(card);});
+}
+function buildQualityGrid(){
+  const grid=document.getElementById('qualityGrid');grid.innerHTML='';
+  qualityStyles.forEach((q,idx)=>{const card=document.createElement('div');card.className='preview-card'+(idx===0?' active':'');card.dataset.quality=q.v;card.onclick=()=>{document.querySelectorAll('#qualityGrid .preview-card').forEach(c=>c.classList.remove('active'));card.classList.add('active');selectedQuality=q.v;updateComboPreview();};card.innerHTML=`<div class="preview-img"><div class="portrait-base ${q.cls}"></div><span class="bg-preview-icon">${q.icon||''}</span></div><div class="preview-name">${q.name}</div>`;grid.appendChild(card);});
+}
+const qualityFilters={mobile:'contrast(1.05) saturate(.92) brightness(1.02)',dslr:'contrast(1.18) saturate(1.12) brightness(1.03)',film:'sepia(.35) contrast(1.12) saturate(.85) brightness(.97)',polaroid:'sepia(.25) brightness(1.08) contrast(.92) saturate(.9)'};
+const skinColors={natural:{c:'#e8c8a8',d:'#c09870'},lightmakeup:{c:'#f0d8c0',d:'#d8b898'},freckle:{c:'#f0d0b0',d:'#d8b088'},flaw:{c:'#e0b890',d:'#c89870'},oily:{c:'#f0d0a8',d:'#d8b080'},dry:{c:'#d8b898',d:'#c09878'},mobile:{c:'#f0d8c0',d:'#dcc4a4'},hyperreal:{c:'#e4c09c',d:'#c89870'}};
+function updateComboPreview(){
+  const bg=bgStyles.find(b=>b.v===selectedBg)||bgStyles[0];
+  const light=lightStyles.find(l=>l.v===selectedLight)||lightStyles[0];
+  const quality=qualityStyles.find(q=>q.v===selectedQuality)||qualityStyles[0];
+  const skin=skinColors[selectedSkin]||skinColors.natural;
+  const bgEl=document.getElementById('comboBg');if(bgEl){bgEl.className='combo-layer combo-bg '+(bg.cls||'');}
+  const portraitEl=document.getElementById('comboPortrait');if(portraitEl){portraitEl.className='combo-layer combo-portrait skin-'+selectedSkin;portraitEl.style.setProperty('--skin-c',skin.c);portraitEl.style.setProperty('--skin-d',skin.d);}
+  const lightEl=document.getElementById('comboLight');if(lightEl){lightEl.className='combo-layer combo-light light-base '+(light.cls||'');}
+  const preview=document.getElementById('comboPreview');if(preview){preview.style.filter=qualityFilters[selectedQuality]||'none';}
+  const label=document.getElementById('comboLabel');if(label){label.textContent=bg.name+' · '+light.name+' · '+quality.name;}
+}
+function getPersonDesc(){
+  const type=document.getElementById('personType').value,custom=document.getElementById('customPerson').value,hair=document.getElementById('hairstyle').value,skin=getSkinDesc(),isMale=currentGender==='male';
+  const base={female:{yujie:`一位24岁左右的中国女生，御姐气质，精致五官但轻微不对称，柳叶眉桃花眼高挺鼻梁饱满唇形`,glasses:`一位20多岁的亚洲女生，圆脸，戴细金属圆框眼镜`,normal:`一位20多岁的亚洲女生，自然妆容，五官普通但舒服`,college:`一位20岁左右的女大学生，清纯长相，素颜或极淡妆`,ol:`一位28岁左右的职场女性，干练气质，精致淡妆`,sport:`一位20多岁的运动风女生，健康肤色，充满活力`,art:`一位20多岁的文艺女青年，气质清冷，戴细框眼镜`,sweet:`一位20岁左右的甜妹，圆脸大眼睛，笑容甜美`,cool:`一位20多岁的酷飒女生，气质冷艳`,mature:`一位30岁左右的轻熟女性，长卷发，气质妩媚成熟`,middleage:`一位40岁左右的中年女性，气质优雅成熟，眼角有细纹，面部有自然衰老痕迹，五官端庄`,elderly:`一位60岁左右的老年女性，慈祥面容，满脸皱纹，有老年斑，头发花白，体态略显佝偻但精神矍铄`,custom:custom||'一位年轻女生'},male:{handsome:`一位25岁左右的中国男生，帅气五官，剑眉星目，下颌线清晰`,glasses:`一位20多岁的亚洲男生，戴黑框眼镜，斯文气质`,normal:`一位20多岁的亚洲男生，普通长相，干净清爽`,college:`一位20岁左右的男大学生，阳光清纯`,ol:`一位28岁左右的职场精英男，干练气质`,sport:`一位20多岁的运动型男，身材健硕，阳光健康`,art:`一位20多岁的文艺男青年，气质忧郁`,cool:`一位20多岁的酷帅男生，气质冷峻`,mature:`一位30岁左右的轻熟男性，胡茬，成熟稳重`,middleage:`一位40岁左右的中年男性，气质沉稳，有胡茬，眼角有细纹，发际线略高，腹部微胖`,elderly:`一位60岁左右的老年男性，慈祥面容，满脸皱纹，有老年斑，头发花白稀疏，可能戴老花镜`,sunshine:`一位20岁左右的阳光大男孩，笑容灿烂`,custom:custom||'一位年轻男生'}};
+  const hairDesc={female:{wave:'乌黑及腰大波浪长发，有碎发飘在脸侧',longstraight:'乌黑顺直长发，垂在背后',shoulder:'齐肩微卷发，发尾内扣',bob:'波波头短发，发尾微卷',ponytail:'高马尾，干净利落',halfbun:'半丸子头，有碎发散落',bangs:'齐刘海长直发，清纯可爱',twintail:'双马尾，活泼可爱',shorthair:'利落短发，干练清爽',curly:'羊毛卷短发，蓬松可爱',braid:'麻花辫垂在胸前'},male:{short:'清爽短发，干净利落',undercut:'两边剃短，顶部留长',curly:'自然卷发，蓬松',perm:'纹理烫短发，时尚',long:'中长发，艺术感',buzz:'寸头，硬朗',bangs:'齐刘海短发，少年感',slick:'大背头，油头，成熟',messy:'凌乱碎发，随性',dread:'脏辫，个性'}};
+  const bodyDesc=isMale?'身材匀称，有肌肉线条':'身材高挑匀称，曲线优美';
+  const hairColor=document.getElementById('hairColor').value,hairColorDesc={black:'自然黑色',darkbrown:'深棕色',lightbrown:'浅棕色栗色',golden:'金黄色亚麻色',red:'酒红色红棕色',gray:'灰白色',white:'纯白色',blackgray:'黑白夹杂花白',highlights:'黑色底色挑染浅色',dyed:'时尚彩色染色'};
+  const hairFull=`${hairDesc[currentGender][hair]||hairDesc[currentGender].short}，发色为${hairColorDesc[hairColor]||'自然黑色'}`;
+  let finalSkin=skin;
+  if(type==='middleage')finalSkin='皮肤有自然衰老痕迹，眼角有鱼尾纹，额头有浅皱纹，法令纹明显，皮肤略松弛，有毛孔和色斑，完全真人质感，非AI年轻脸';
+  else if(type==='elderly')finalSkin='皮肤苍老，满脸皱纹（额头纹、眼角纹、法令纹、嘴角纹），有明显老年斑和色斑，皮肤松弛下垂，毛孔粗大，肤色暗沉不均，有老人痣，完全真实老年人皮肤，绝非AI光滑脸';
+  let personBase=base[currentGender][type]||base[currentGender].normal;
+  if(document.getElementById('lockPerson').checked&&document.getElementById('personSeed').value.trim())personBase=document.getElementById('personSeed').value.trim();
+  return `${personBase}，${hairFull}，${bodyDesc}，${finalSkin}`;
+}
+function getSkinDesc(){const s={natural:'皮肤自然有纹理，可见细微毛孔和细小汗毛，面部轻微不对称，有淡淡的法令纹和黑眼圈，真人质感，非AI完美脸',lightmakeup:'皮肤白皙，自然淡妆底妆，仍可见部分毛孔纹理，真人质感',freckle:'皮肤白皙，鼻梁和脸颊有淡淡的小雀斑，有自然毛孔和细小汗毛，真实可爱',flaw:'皮肤自然，脸颊有少量痘印、小痣和瑕疵，有毛孔纹理，非常真实不完美',oily:'皮肤自然偏油性，T区和额头有轻微油光和光泽，有毛孔纹理，真实质感',dry:'皮肤偏干，哑光质感，脸颊有轻微干纹和起皮，有毛孔，真实自然',mobile:'皮肤自然，手机拍摄轻微磨皮效果，保留部分皮肤纹理和瑕疵，真实不夸张',hyperreal:'皮肤超真实，可见清晰毛孔、细小汗毛、T区油光、面部细纹、轻微肤色不均、法令纹、眼角细纹，完全真人皮肤质感，绝非AI光滑脸'};return s[selectedSkin]||s.natural;}
+function getClothingDesc(){const type=document.getElementById('clothing').value,custom=document.getElementById('customClothing').value;const c={female:{denim:'穿蓝色水洗牛仔衬衫（翻领，棕色纽扣）和深蓝色宽松牛仔裤',hoodie:'穿白色宽松连帽卫衣和灰色休闲裤',knit:'穿米色宽松针织衫和卡其色阔腿裤',dress:'穿浅色长袖连衣裙，长度过膝，得体不暴露',suit:'穿黑色小西装外套内搭白色T恤，下装黑色西裤',stripe:'穿黑白条纹T恤和卡其色工装裤',sweaterskirt:'穿米色毛衣和棕色格纹半身裙（过膝）',baseball:'穿黑色棒球服和灰色运动裤',camiscard:'穿浅色吊带外搭针织开衫，下装牛仔裤，得体不暴露',trench:'穿卡其色长款风衣内搭白色上衣，下装牛仔裤',hanfu:'穿新中式改良汉服上衣，马面裙，得体优雅',jk:'穿白色JK衬衫和深色格纹百褶裙（过膝），领结',tshirt:'穿简单白色T恤和蓝色牛仔裤',custom:custom||'穿日常休闲服装'},male:{denim:'穿蓝色水洗牛仔衬衫和深蓝色牛仔裤',hoodie:'穿黑色宽松连帽卫衣和灰色工装裤',shirt:'穿白色衬衫和黑色西裤',tshirt:'穿简单白色T恤和深色休闲裤',suit:'穿黑色西装内搭白衬衫，打领带',baseball:'穿黑色棒球服和运动裤',jacket:'穿黑色皮夹克和深蓝色牛仔裤',trench:'穿卡其色长款风衣内搭黑色上衣',knit:'穿深色圆领针织衫和深色休闲裤',vest:'穿灰色针织马甲内搭白T恤，下装卡其裤',sport:'穿运动套装，运动鞋',custom:custom||'穿日常休闲服装'}};return c[currentGender][type]||c[currentGender].tshirt;}
+function getPoseDesc(){const type=document.getElementById('pose').value,eyeline=document.getElementById('eyeline').value;const eye={down:'低头看着纸板，眼睛向下看',camera:'抬起头看着镜头',side:'看向侧面',closed:'闭着眼睛'};const p={lookdown:`站着，双手举着纸板在胸前位置，${eye[eyeline]}，表情平静自然`,lookcamera:`站着，双手举着纸板，抬起头看着镜头，嘴角带着浅浅的微笑`,side:`微微侧着脸，双手举着纸板，低头看着纸板，侧脸线条柔和`,playful:`歪着头，双手举着纸板，看着镜头，表情俏皮可爱带着笑意`,onehand:`一只手举着纸板，另一只手自然垂着或插兜，看着镜头微笑`,nearface:`把纸板举到脸旁边，一只手拿着，看着镜头微笑`,sitting:`坐在椅子上，双手把纸板放在腿上举着，低头看纸板`,coverface:`双手举着纸板挡住半张脸，只露出眼睛以上，眼睛看着镜头`,surprised:`双手举着纸板，看着镜头，嘴巴微张，表情惊讶`,wink:`双手举着纸板，看着镜头，一只眼睛眨眼wink，带着俏皮笑容`,shy:`双手举着纸板，低着头，嘴角带着害羞的微笑，脸颊微红`};return p[type]||p.lookdown;}
+function getFramingDesc(){const f={fullbody:'全身入镜，从头到脚完整入画',halfupper:'半身入镜，膝盖以上',upper:'上半身入镜，胸部以上',closeup:'特写，纸板和脸部占据画面主要部分'};return f[document.getElementById('framing').value]||f.fullbody;}
+function getPenDesc(){const type=document.getElementById('penType').value,color=getInkColor();const p={thickmarker:`${color}粗头马克笔，笔画粗，笔触明显，起笔有顿笔，颜色饱满，有马克笔特有的毛边`,thinmarker:`${color}细头马克笔，笔画中等偏细，笔触清晰`,gel05:`${color}中性笔0.5mm，笔画中等，流畅自然，有轻微洇墨`,gel038:`${color}中性笔0.38mm，笔画细，书写流畅`,fountain:`${color}钢笔，笔画粗细变化极大，有明显笔锋，墨水有浓淡变化和飞白`,ballpoint:`${color}圆珠笔，笔画细，有出油不匀的断续感和积墨`,pencil2b:`2B铅笔，灰色，有轻重涂抹痕迹，有铅笔颗粒`,brushbig:`${color}大楷毛笔，笔画粗壮有力，粗细变化极大，起笔收笔有明显笔锋，有飞白和枯笔，墨色浓淡变化丰富，有书法感`,brushsmall:`${color}小楷毛笔，笔画纤细但有笔锋，粗细变化自然，有轻微飞白，书写流畅有书法韵味`,xiuli:`${color}秀丽笔（软头笔），笔画有粗细变化，笔尖柔软有弹性，起笔顿笔明显，介于硬笔和毛笔之间`,brushpen:`${color}书法软笔，毛笔质感，笔画粗细变化大，有笔锋和飞白，墨水有浓淡变化`,highlighter:`${color}荧光笔，笔画粗，颜色半透明`,crayon:`${color}蜡笔，笔画粗，有蜡质颗粒感和涂抹痕迹，颜色不透明有覆盖感`};return p[type]||p.thickmarker;}
+function getInkColor(){const c={black:'黑色',darkgray:'深灰色',darkblue:'深蓝色',red:'红色',blue:'蓝色',green:'墨绿色',purple:'紫色',brown:'棕色',pink:'粉色',gold:'金色',white:'白色'};return c[document.getElementById('inkColor').value]||'黑色';}
+function getPaperDesc(){const type=document.getElementById('paperType').value;const p={cardboard:'米白色硬纸板，有轻微纹理，边缘有自然磨损和小折痕',whitea3:'白色A3打印纸，有轻微褶皱和折痕',kraft:'牛皮纸硬纸板，有明显纸质纹理，黄褐色',blackboard:'黑色硬纸板，表面哑光',corrugated:'瓦楞纸板，有波浪纹理',notebook:'米白色笔记本纸，有淡蓝色横线，纸有轻微褶皱',letter:'复古米黄色信纸，有细腻纹理和淡横线',draft:'白色草稿纸，有褶皱和折痕，有其他字迹透印',newspaper:'报纸质感纸张，有印刷文字透印，偏黄'};return p[type]||p.cardboard;}
+function getFontStyleDesc(){const f={cute:'字体可爱圆润，像女生手写的萌系字体，笔画圆钝，大小不一',boldmarker:'字体粗犷有力，马克笔手写风格，笔画粗重，下笔重',pen:'字体清秀工整，像钢笔写的，笔画有笔锋，连笔自然',cursive:'字体潦草连笔，像快速随手写的，笔画连贯，字与字连在一起',child:'字体稚嫩工整，像小学生写的，一笔一划，有些字写得歪',thin:'字体纤细文艺，笔画细而轻，有文艺感',domineering:'字体霸气粗重，笔画有力，整体倾斜有气势',cheese:'字体像网红奶酪体，圆润可爱，笔画有圆角',shoujin:'字体像瘦金体，笔画纤细有锋芒，结构挺拔',xingshu:'字体像行书，连笔自然，流畅有书法感，书写节奏明显'};return f[selectedFont]||f.cute;}
+function getHandwritingDetail(){const v=id=>parseInt(document.getElementById(id).value);const parts=[];const pressure=['','下笔轻重有轻微差异','下笔轻重有明显差异，有的字重有的字轻，起笔重收笔轻','下笔轻重差异非常明显，每个字用力都不一样，有的字几乎刻进纸里有的字轻飘飘'];const size=['','字的大小有轻微差异','字的大小有明显差异，有的字大有的字小','字的大小差异非常大，每个字大小都不同，重要的字写得特别大'];const tilt=['','每个字轻微倾斜','每个字倾斜角度不同，有的左倾有的右倾','每个字倾斜明显，角度方向完全随机，有的字甚至歪得快倒了'];const messy=['','排列基本整齐有轻微错落','排列随意，每行高低左右错开，不在一条线上','排列非常随意混乱，每行位置完全不规律，有的字甚至写出了行'];const mistake=['','部分笔画有重描和涂改痕迹，个别字潦草有连笔','有较多涂改、重描、写错划掉的痕迹，有的字描了两三遍，非常真实'];const lianbi=['','少量字有连笔，相邻的字笔画连在一起','较多连笔，字与字之间有连贯笔画，像快速书写'];const feibai=['','有少量飞白和断墨痕迹，笔画边缘有毛边','有较多飞白、断墨、墨水不匀、洇染的痕迹，有的地方墨水没出墨'];const spacing=['','字间距有轻微不均匀','字间距明显不均匀，有的字挤在一起有的分开很远','字间距非常不均匀，完全随机，有的字重叠有的字隔很远'];[['pressure',pressure],['sizeDiff',size],['tilt',tilt],['messy',messy],['mistake',mistake],['lianbi',lianbi],['feibai',feibai],['spacing',spacing]].forEach(([id,arr])=>{if(arr[v(id)])parts.push(arr[v(id)]);});return parts.join('；')+'。';}
+function getBgDesc(){const custom=document.getElementById('customBg').value;const b={curtain:'背景是深蓝色（孔雀蓝）的绒布窗帘，有自然的垂坠褶皱，窗帘占据整个背景',whitewall:'背景是纯白色墙面，干净简洁',beigewall:'背景是米白色墙面，有轻微纹理',cement:'背景是灰色水泥墙，有工业风质感和细微裂纹',brick:'背景是复古红砖墙，有清晰砖缝和水泥纹理',wood:'背景是木质墙面，有清晰木纹纹理',livingroom:'背景是虚化的室内客厅，有沙发、抱枕和绿植，浅景深',bedroom:'背景是虚化的卧室，有床、枕头和窗帘，暖色调',office:'背景是虚化的办公室，有办公桌、电脑和文件',cafe:'背景是虚化的咖啡馆，有暖黄灯光、木质桌椅和咖啡杯',bookstore:'背景是虚化的书店，有高大书架和暖光',street:'背景是虚化的户外街道，有行人、店铺和路灯',park:'背景是虚化的公园，有绿植、阳光和树木',studiowhite:'背景是摄影棚纯白色背景布，干净无杂物',studiogray:'背景是摄影棚灰色背景布',studiopink:'背景是摄影棚淡粉色背景布',custom:custom||'纯色背景'};return b[selectedBg]||b.curtain;}
+function getLightDesc(){const l={soft:'室内均匀柔光，正面打光，光线柔和不刺眼，没有明显硬阴影',window:'窗边自然光，从侧面照进来，有柔和的明暗过渡和自然阴影',warmlamp:'暖黄色室内灯光，色调温暖偏橙，有轻微光晕和氛围感',flash:'手机闪光灯直打，光线偏硬，正面光照明显，有轻微红眼效应',backlight:'侧逆光，有发丝光轮廓，正面稍暗，有氛围感和电影感',toplight:'顶光从上方照下，有自然的头顶阴影和眼窝阴影',coldwhite:'冷白色灯光，色调偏冷，明亮清晰，有办公室感',candle:'烛光般的暖光，色调温暖偏橙红，光线柔和有跳动感',cloudy:'阴天散射光，光线均匀柔和，没有明显阴影，色调偏冷',spotlight:'聚光灯从上方打亮人物，背景较暗，有舞台感和戏剧性',goldenhour:'日落黄金时刻暖光，色调金黄温暖，有长阴影和发丝光',neon:'霓虹灯混合光，有粉蓝紫彩色光晕，赛博朋克感'};return l[selectedLight]||l.soft;}
+function getQualityDesc(){const q={mobile:'手机原相机拍摄质感，轻微胶片颗粒，轻微自动磨皮，真实生活记录感，有轻微噪点',dslr:'单反相机拍摄，高清细节，浅景深虚化，色彩准确，锐度适中',film:'胶片相机拍摄，有明显胶片颗粒和复古色调，对比度偏高，色彩偏暖',polaroid:'拍立得照片质感，有白边，复古色调，轻微过曝，颗粒感明显'};return q[selectedQuality]||q.mobile;}
+function getPhotoTypeDesc(){const type=document.getElementById('photoType').value;const p={static:'静态照片，画面清晰锐利，人物静止摆拍，没有运动模糊，焦点清晰',live:'Live Photo实况照片质感，动态抓拍的自然瞬间，人物正在自然微动（眨眼、呼吸、头发轻微飘动、手指微动），有极轻微的动态模糊，像手机实况照片捕捉的真实瞬间，完全不摆拍，自然生动',burst:'高速连拍抓拍照，动感瞬间，人物动作正在进行中，有自然的运动模糊和动态感，表情生动真实，像抓拍到的不经意瞬间，有轻微的肢体拖影',longexposure:'长曝光拍摄效果，有光影拖尾和动态光轨，光线有流动感，人物边缘有轻微拖影和虚化，艺术氛围感强，画面有时间流逝感'};return p[type]||p.static;}
+function getNoPersonSceneDesc(){const carrier=document.getElementById('noPersonCarrier').value,angle=document.getElementById('noPersonAngle').value,props=document.getElementById('noPersonProps').value;const carriers={desknote:'一张米白色便签纸平放在桌面上，上面手写着文字',notebook:'一本翻开的笔记本，页面上手写着文字，笔记本有使用痕迹',blackboard:'一块黑板/白板，上面用粉笔/马克笔手写着文字',stickynote:'一张彩色便利贴贴在墙上/冰箱门上，上面手写着文字',letter:'一张复古信纸平放在桌面上，上面手写着文字，信纸有折痕',wallpaper:'一张手写纸条用图钉钉在墙上，纸张有自然卷曲',coffeecup:'一张手写小卡片放在咖啡杯旁边，卡片上写着文字',bookmark:'一枚手写书签夹在翻开的书本里，书签上写着文字',mirror:'一面镜子上贴着便签纸/或用口红写着字',window:'窗户玻璃上用马克笔手写着文字，窗外有虚化景色'};const angles={topdown:'俯拍视角，从正上方往下拍',front:'正面平视拍摄',side:'侧面拍摄',closeup:'特写镜头，聚焦在文字上，浅景深',angle45:'45度斜角拍摄'};const propsDesc={coffee:'旁边放着一杯咖啡和金属勺子',plant:'旁边有一盆小盆栽和绿色植物',book:'旁边放着一本打开的书和一副眼镜',phone:'旁边放着一部手机和有线耳机',flower:'旁边有一束干花和玻璃花瓶',snack:'旁边放着零食和一杯饮料',pen:'旁边放着一支钢笔和墨水瓶',clean:'桌面干净，没有其他杂物'};return `${carriers[carrier]||carriers.desknote}，${angles[angle]||angles.angle45}，${propsDesc[props]||propsDesc.clean}。`;}
+function getNegativePrompt(){
+  const type=document.getElementById('personType').value,skin=selectedSkin,photoType=document.getElementById('photoType').value;
+  let neg=[
+    'AI脸','塑料皮肤','假脸','过度磨皮','皮肤过于光滑','完美对称脸','美颜滤镜','精修图','瓷娃娃皮肤',
+    '文字错误','错别字','乱码','文字扭曲','多余文字','缺少文字','文字模糊','文字无法辨认','文字重复',
+    '多余手指','缺少手指','畸形的手','多余肢体','身体比例错误','解剖结构错误','手指粘连','手指数量不对',
+    '低质量','模糊','像素化','压缩痕迹','水印','签名','logo','画面裁切','主体出框',
+    '卡通','动漫','3D渲染','插画','油画','素描','手绘','CG特效','数字艺术','二次元'
+  ];
+  if(skin==='hyperreal'||skin==='natural')neg.push('皮肤过于光滑','完美无瑕皮肤','没有毛孔');
+  if(type==='elderly'||type==='middleage')neg.push('年轻的脸','没有皱纹','婴儿皮肤','光滑的脸');
+  if(photoType==='static')neg.push('运动模糊','脸部模糊');
+  if(currentMode==='person')neg.push('多余的手','畸形的手臂','手指数量错误','纸板漂浮');
+  neg=[...new Set(neg)];
+  return neg.join('，');
+}
+function adaptPrompt(prompt,tool){
+  // 全部纯中文，不加任何英文参数
+  return prompt;
+}
+function generate(){
+  const rawText=document.getElementById('textInput').value.trim();
+  if(!rawText){alert('请先输入文字内容');return;}
+  const groups=rawText.split(/\n\s*\n/).filter(g=>g.trim()),tool=document.getElementById('aiTool').value,ratio=document.getElementById('ratio').value;
+  const outSec=document.getElementById('outputSection'),outArea=document.getElementById('outputArea');
+  outArea.innerHTML='';outSec.style.display='block';
+  let commonScene='';
+  if(currentMode==='person'){
+    const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),poseDesc=getPoseDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
+    commonScene=`真实照片，${personDesc}，${clothingDesc}，${framingDesc}。${pronoun}站在室内，双手举着一张${getPaperDesc()}（A3大小），纸板位于画面中央，文字正对着镜头，${poseDesc}。`;
+  }else{commonScene=`真实照片，${getNoPersonSceneDesc()}`;}
+  const commonTail=`${getBgDesc()}。${getLightDesc()}。居中构图，竖版，${getQualityDesc()}，${getPhotoTypeDesc()}，自然真实不做作，有生活气息，${ratio}竖幅`;
+  groups.forEach((group,idx)=>{
+    const lines=group.split('\n').filter(l=>l.trim()),lc=lines.length;let tc='';
+    lines.forEach((line,i)=>{const cn=['一','二','三','四','五','六','七','八','九','十'][i]||(i+1);tc+=`第${cn}行写着"${line.trim()}"，`;});
+    let ld='';
+    if(lc>1){const pos=['偏上','往下偏左','居中','偏右','明显偏向右下角','再往下偏左','居中偏上'];lines.forEach((l,i)=>{ld+=`第${i+1}行${pos[i%pos.length]}，`;});}
+    const textPart=`纸板上用${getPenDesc()}手写了${lc}行中文文字，${getFontStyleDesc()}，完全模仿真人随手写的效果，${tc}真人手写核心特征：每个字下笔力度都不一样，有的字重有的字轻；字的大小差异明显，每个字大小都不同；每个字倾斜角度和方向随机不同；排列非常随意，每行高低左右错开，${ld}行间距不统一有的宽有的窄；字间距不均匀有的挤在一起有的分开很远；笔画有粗细变化，起笔重收笔轻，有真实笔触和毛边；墨水浓度有变化，有飞白断墨和洇染；${getHandwritingDetail()}整体看起来就是普通人随手写的，完全不整齐不工整，有书写节奏和呼吸感，没有任何印刷体或AI生成的规整感。`;
+    let prompt=adaptPrompt(commonScene+textPart+commonTail,tool);
+    const negPrompt=getNegativePrompt();
+    const item=document.createElement('div');item.className='output-item';
+    item.innerHTML=`<div class="output-label">📝 第${idx+1}条（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'} · ${tool==='midjourney'?'Midjourney':tool==='sd'?'SD':'中文AI'}）</div>
+      <div class="output-label" style="color:#90cdf4;font-size:11px">⬇️ 正向提示词（Positive Prompt）</div>
+      <div class="output-area prompt-text">${prompt}</div>
+      <button class="copy-btn" onclick="copyText(this,'.prompt-text')">复制正向词</button>
+      <div class="neg-label">⬇️ 负面提示词（Negative Prompt）— 复制到AI工具的负面框里</div>
+      <div class="neg-area neg-text">${negPrompt}</div>
+      <button class="copy-btn" onclick="copyText(this,'.neg-text')">复制负面词</button>`;
+    outArea.appendChild(item);
+  });
+  outSec.scrollIntoView({behavior:'smooth'});
+}
+function copyText(btn,selector){const text=btn.parentElement.querySelector(selector).textContent;navigator.clipboard.writeText(text).then(()=>{btn.textContent='✅已复制';btn.classList.add('copied');setTimeout(()=>{btn.textContent=selector.includes('neg')?'复制负面词':'复制正向词';btn.classList.remove('copied');},2000);});}
+function copyAll(){const items=document.querySelectorAll('.output-item');if(!items.length){alert('还没有生成内容');return;}let all='';items.forEach((item,idx)=>{all+=`========== 第${idx+1}条 ==========\n【正向提示词】\n${item.querySelector('.prompt-text').textContent}\n\n【负面提示词】\n${item.querySelector('.neg-text').textContent}\n\n`;});navigator.clipboard.writeText(all).then(()=>{alert('已复制全部'+items.length+'条（含正向+负面）');});}
+function clearAll(){document.getElementById('textInput').value='';document.getElementById('outputSection').style.display='none';document.getElementById('outputArea').innerHTML='';updatePaperPreview();}
+function saveConfig(){const name=prompt('给这套配置起个名字：','我的人设1');if(!name)return;const config={name,time:Date.now(),mode:currentMode,gender:currentGender,personType:document.getElementById('personType').value,customPerson:document.getElementById('customPerson').value,hairstyle:document.getElementById('hairstyle').value,hairColor:document.getElementById('hairColor').value,pose:document.getElementById('pose').value,clothing:document.getElementById('clothing').value,customClothing:document.getElementById('customClothing').value,framing:document.getElementById('framing').value,eyeline:document.getElementById('eyeline').value,skin:selectedSkin,lockPerson:document.getElementById('lockPerson').checked,personSeed:document.getElementById('personSeed').value,font:selectedFont,penType:document.getElementById('penType').value,paperType:document.getElementById('paperType').value,inkColor:document.getElementById('inkColor').value,pressure:document.getElementById('pressure').value,sizeDiff:document.getElementById('sizeDiff').value,tilt:document.getElementById('tilt').value,messy:document.getElementById('messy').value,mistake:document.getElementById('mistake').value,lianbi:document.getElementById('lianbi').value,feibai:document.getElementById('feibai').value,spacing:document.getElementById('spacing').value,bg:selectedBg,customBg:document.getElementById('customBg').value,light:selectedLight,quality:selectedQuality,ratio:document.getElementById('ratio').value,photoType:document.getElementById('photoType').value,aiTool:document.getElementById('aiTool').value,noPersonCarrier:document.getElementById('noPersonCarrier').value,noPersonAngle:document.getElementById('noPersonAngle').value,noPersonProps:document.getElementById('noPersonProps').value};const all=JSON.parse(localStorage.getItem('handwritingConfigs')||'[]');all.push(config);localStorage.setItem('handwritingConfigs',JSON.stringify(all));loadConfigList();alert('配置已保存：'+name);}
+function loadConfigList(){const all=JSON.parse(localStorage.getItem('handwritingConfigs')||'[]');const sel=document.getElementById('configList');sel.innerHTML='<option value="">-- 加载已保存配置 --</option>';all.forEach((c,i)=>{const opt=document.createElement('option');opt.value=i;opt.textContent=c.name+(c.gender==='male'?'（男）':'（女）');sel.appendChild(opt);});}
+function loadConfig(idx){if(idx==='')return;const all=JSON.parse(localStorage.getItem('handwritingConfigs')||'[]');const c=all[idx];if(!c)return;setMode(c.mode||'person');setGender(c.gender||'female');document.getElementById('personType').value=c.personType||'yujie';document.getElementById('customPerson').value=c.customPerson||'';toggleCustom('personType','customPersonInput');document.getElementById('hairstyle').value=c.hairstyle||'wave';document.getElementById('hairColor').value=c.hairColor||'black';document.getElementById('pose').value=c.pose||'lookdown';document.getElementById('clothing').value=c.clothing||'denim';document.getElementById('customClothing').value=c.customClothing||'';toggleCustom('clothing','customClothingInput');document.getElementById('framing').value=c.framing||'fullbody';document.getElementById('eyeline').value=c.eyeline||'down';selectSkinByValue(c.skin||'natural');document.getElementById('lockPerson').checked=c.lockPerson||false;document.getElementById('seedArea').style.display=c.lockPerson?'block':'none';document.getElementById('personSeed').value=c.personSeed||'';selectFontByValue(c.font||'cute');document.getElementById('penType').value=c.penType||'thickmarker';document.getElementById('paperType').value=c.paperType||'cardboard';document.getElementById('inkColor').value=c.inkColor||'black';document.getElementById('pressure').value=c.pressure||3;document.getElementById('sizeDiff').value=c.sizeDiff||3;document.getElementById('tilt').value=c.tilt||3;document.getElementById('messy').value=c.messy||3;document.getElementById('mistake').value=c.mistake||1;document.getElementById('lianbi').value=c.lianbi||1;document.getElementById('feibai').value=c.feibai||2;document.getElementById('spacing').value=c.spacing||3;selectBgByValue(c.bg||'curtain');document.getElementById('customBg').value=c.customBg||'';document.getElementById('customBgInput').classList.toggle('show',c.bg==='custom');selectLightByValue(c.light||'soft');selectQualityByValue(c.quality||'mobile');document.getElementById('ratio').value=c.ratio||'3:4';document.getElementById('photoType').value=c.photoType||'static';document.getElementById('aiTool').value=c.aiTool||'doubao';document.getElementById('noPersonCarrier').value=c.noPersonCarrier||'desknote';document.getElementById('noPersonAngle').value=c.noPersonAngle||'topdown';document.getElementById('noPersonProps').value=c.noPersonProps||'coffee';updatePaperPreview();alert('已加载配置：'+c.name);}
+function deleteConfig(){const sel=document.getElementById('configList');if(sel.value===''){alert('请先选择要删除的配置');return;}if(!confirm('确定删除这个配置吗？'))return;const all=JSON.parse(localStorage.getItem('handwritingConfigs')||'[]');all.splice(parseInt(sel.value),1);localStorage.setItem('handwritingConfigs',JSON.stringify(all));loadConfigList();}
+function randomConfig(){const genders=['female','male'],g=genders[Math.floor(Math.random()*genders.length)];setGender(g);document.getElementById('personType').value=personData[g][Math.floor(Math.random()*personData[g].length)].v;document.getElementById('hairstyle').value=hairData[g][Math.floor(Math.random()*hairData[g].length)].v;document.getElementById('hairColor').value=hairColorData[Math.floor(Math.random()*hairColorData.length)].v;document.getElementById('pose').value=document.getElementById('pose').options[Math.floor(Math.random()*document.getElementById('pose').options.length)].value;document.getElementById('clothing').value=clothingData[g][Math.floor(Math.random()*clothingData[g].length)].v;selectSkinByValue(['natural','hyperreal','flaw','freckle'][Math.floor(Math.random()*4)]);selectFontByValue(fontStyles[Math.floor(Math.random()*fontStyles.length)].v);selectBgByValue(bgStyles[Math.floor(Math.random()*bgStyles.length)].v);selectLightByValue(lightStyles[Math.floor(Math.random()*lightStyles.length)].v);selectQualityByValue(qualityStyles[Math.floor(Math.random()*qualityStyles.length)].v);updatePaperPreview();}
+function selectSkinByValue(v){document.querySelectorAll('.skin-card').forEach(c=>c.classList.toggle('active',c.dataset.skin===v));selectedSkin=v;}
+function selectFontByValue(v){document.querySelectorAll('#fontGrid .preview-card').forEach(c=>c.classList.toggle('active',c.dataset.font===v));selectedFont=v;}
+function selectBgByValue(v){document.querySelectorAll('#bgGrid .preview-card').forEach(c=>c.classList.toggle('active',c.dataset.bg===v));selectedBg=v;}
+function selectLightByValue(v){document.querySelectorAll('#lightGrid .preview-card').forEach(c=>c.classList.toggle('active',c.dataset.light===v));selectedLight=v;}
+function selectQualityByValue(v){document.querySelectorAll('#qualityGrid .preview-card').forEach(c=>c.classList.toggle('active',c.dataset.quality===v));selectedQuality=v;}
+init();
+</script>
+</body>
+</html>

@@ -613,11 +613,7 @@
     </div>
   </div>
   <div class="section">
-    <div class="section-title">4. 手写字体风格（10种，动态错落预览）</div>
-    <div class="preview-grid" id="fontGrid"></div>
-  </div>
-  <div class="section">
-    <div class="section-title">5. 笔 / 纸板 / 颜色</div>
+    <div class="section-title">4. 笔 / 纸板 / 颜色</div>
     <div class="row">
       <div class="col"><label>笔的类型 <span id="penPreview" style="display:inline-block;width:30px;height:4px;background:#222;border-radius:2px;vertical-align:middle;margin-left:4px"></span></label>
         <select id="penType" onchange="updatePaperPreview();updatePenPreview()">
@@ -667,7 +663,7 @@
     </div>
   </div>
   <div class="section">
-    <div class="section-title">6. 真人手写细节控制（8项，全拉满最真实）</div>
+    <div class="section-title">5. 真人手写细节控制（8项，全拉满最真实）</div>
     <div class="row">
       <div class="col"><div class="slider-group"><div class="slider-label"><span>下笔轻重差异</span><span id="pressureVal">明显</span></div><input type="range" id="pressure" min="1" max="3" value="3" oninput="updateSlider('pressure','pressureVal',['轻微','中等','明显']);updatePaperPreview()"></div></div>
       <div class="col"><div class="slider-group"><div class="slider-label"><span>字大小差异</span><span id="sizeVal">明显</span></div><input type="range" id="sizeDiff" min="1" max="3" value="3" oninput="updateSlider('sizeDiff','sizeVal',['轻微','中等','明显']);updatePaperPreview()"></div></div>
@@ -686,16 +682,16 @@
     </div>
   </div>
   <div class="section">
-    <div class="section-title">7. 背景（17种，带预览）</div>
+    <div class="section-title">6. 背景（17种，带预览）</div>
     <div class="preview-grid" id="bgGrid"></div>
     <div id="customBgInput" class="custom-input" style="margin-top:8px;"><input type="text" id="customBg" placeholder="输入自定义背景描述"></div>
   </div>
   <div class="section">
-    <div class="section-title">8. 光线（12种，带预览）</div>
+    <div class="section-title">7. 光线（12种，带预览）</div>
     <div class="preview-grid" id="lightGrid"></div>
   </div>
   <div class="section">
-    <div class="section-title">9. 画质风格（4种，带预览）</div>
+    <div class="section-title">8. 画质风格（4种，带预览）</div>
     <div class="preview-grid" id="qualityGrid"></div>
   </div>
   <div class="section">
@@ -708,7 +704,7 @@
     </div>
   </div>
   <div class="section">
-    <div class="section-title">10. 比例 / 图片类型 / AI工具</div>
+    <div class="section-title">9. 比例 / 图片类型 / AI工具</div>
     <div class="row">
       <div class="col"><label>图片比例</label>
         <select id="ratio">
@@ -1224,10 +1220,10 @@ function init(){
   loadWords();
   setGender('female');
   document.getElementById('hairColor').innerHTML=hairColorData.map(h=>`<option value="${h.v}">${h.t}</option>`).join('');
-  buildFontGrid();buildBgGrid();buildLightGrid();buildQualityGrid();loadConfigList();updateComboPreview();loadOnlineWords(false);updatePenPreview();updatePaperIcon();updateInkPreview();
+  buildBgGrid();buildLightGrid();buildQualityGrid();loadConfigList();updateComboPreview();loadOnlineWords(false);updatePenPreview();updatePaperIcon();updateInkPreview();
   // 科技感粒子
   const pc=document.getElementById('techParticles');if(pc){for(let i=0;i<20;i++){const s=document.createElement('span');s.style.left=Math.random()*100+'%';s.style.animationDelay=(Math.random()*6)+'s';s.style.animationDuration=(4+Math.random()*4)+'s';s.style.background=Math.random()>0.5?'#00d4ff':'#a855f7';s.style.boxShadow='0 0 6px '+s.style.background;pc.appendChild(s);}}
-  document.getElementById('textInput').addEventListener('input',function(){document.getElementById('charCount').textContent=this.value.replace(/\n/g,'').length+'字';buildFontGrid();});
+  document.getElementById('textInput').addEventListener('input',function(){document.getElementById('charCount').textContent=this.value.replace(/\n/g,'').length+'字';});
 }
 function setMode(m){currentMode=m;document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));document.getElementById('personSection').classList.toggle('hidden-section',m!=='person');document.getElementById('nopersonsSection').classList.toggle('hidden-section',m!=='nopersons');}
 function setGender(g){currentGender=g;document.querySelectorAll('.gender-tab').forEach(t=>t.classList.toggle('active',t.dataset.gender===g));document.getElementById('personType').innerHTML=personData[g].map(p=>`<option value="${p.v}">${p.t}</option>`).join('');document.getElementById('hairstyle').innerHTML=hairData[g].map(h=>`<option value="${h.v}">${h.t}</option>`).join('');document.getElementById('clothing').innerHTML=clothingData[g].map(c=>`<option value="${c.v}">${c.t}</option>`).join('');}
@@ -1460,7 +1456,7 @@ function generate(){
     const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),poseDesc=getPoseDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
     personPart=`真实手机随手拍，不是专业摄影，${personDesc}，${clothingDesc}，${framingDesc}，头发自然有些凌乱，皮肤有自然纹理和小瑕疵不完美，${pronoun}站在室内，双手举着这张${getPaperDesc()}，纸板位于画面中央正对着镜头，${poseDesc}。`;
   }else{personPart=`真实手机随手拍，不是专业摄影，${getNoPersonSceneDesc()}`;}
-  const styleTail=`真人手写，像普通人随手写的，真实自然。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影，有生活气息，真实不做作，${ratio}竖幅`;
+  const styleTail=`黑色粗头马克笔手写，字体圆润可爱，笔画粗细均匀，字间距大排列松散不拥挤，每行高低错落不在一条直线上有的行偏左有的行偏右，下笔较重墨水饱满，文字清晰可读，像萌系手写奶酪体，真人手写真实自然，不是印刷体。${getBgDesc()}。${getLightDesc()}。${getQualityDesc()}，${getPhotoTypeDesc()}，手机原相机拍摄，自然光影，有生活气息，真实不做作，${ratio}竖幅`;
   const prompt=adaptPrompt(textHead+personPart+styleTail,tool);
   const item=document.createElement('div');item.className='output-item';
   item.innerHTML=`<div class="output-label">📝 生成结果（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'}）</div>

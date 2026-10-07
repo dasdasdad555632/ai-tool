@@ -338,9 +338,12 @@
     <div id="checkResult" class="check-result"></div>
     <!-- 违禁词管理面板 -->
     <div id="wordManager" style="display:none;margin-top:12px;padding:14px;background:#faf8f5;border:1px solid #e0d8cc;border-radius:10px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span style="font-weight:700;color:#5c4033;font-size:14px">📝 违禁词管理（共 <span id="wmCount">0</span> 个，自动保存）</span>
-        <button class="btn btn-danger btn-small" onclick="resetWords()">↩️ 恢复默认词库</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <span style="font-weight:700;color:#5c4033;font-size:14px">📝 违禁词管理（共 <span id="wmCount">0</span> 个，自动保存） <span id="onlineWordStatus" style="font-size:11px;font-weight:400;color:#888;margin-left:6px">在线词库：检查中...</span></span>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-secondary btn-small" onclick="loadOnlineWords(true)">🔄 检查更新</button>
+          <button class="btn btn-danger btn-small" onclick="resetWords()">↩️ 恢复默认</button>
+        </div>
       </div>
       <!-- 添加新词 -->
       <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
@@ -898,6 +901,30 @@ function resetWords(){
   renderWordList();
   alert('已恢复默认词库');
 }
+const ONLINE_WORDS_URL='https://dasdasdad555632.github.io/ai-tool/danger-words.json';
+let onlineWordsLoaded=false;
+function loadOnlineWords(showAlert){
+  const statusEl=document.getElementById('onlineWordStatus');
+  if(statusEl)statusEl.textContent='在线词库：更新中...';
+  fetch(ONLINE_WORDS_URL+'?t='+Date.now(),{cache:'no-store'})
+    .then(r=>{if(!r.ok)throw new Error('HTTP '+r.status);return r.json();})
+    .then(data=>{
+      if(!data.words||!Array.isArray(data.words))throw new Error('格式错误');
+      let added=0;
+      data.words.forEach(ow=>{
+        const exists=dangerWords.some(dw=>dw.word===ow.word);
+        if(!exists){dangerWords.push({word:ow.word,level:ow.level||'warn',reason:ow.reason||'',replace:ow.replace||''});added++;}
+      });
+      onlineWordsLoaded=true;
+      if(statusEl)statusEl.textContent='在线词库：v'+data.version+'（+'+added+'个新词）';
+      saveWords();renderWordList();
+      if(showAlert)alert('在线词库更新完成！版本：'+data.version+'\\n新增：'+added+'个词\\n当前总词数：'+dangerWords.length);
+    })
+    .catch(err=>{
+      if(statusEl)statusEl.textContent='在线词库：更新失败（用本地词库）';
+      if(showAlert)alert('在线词库更新失败：'+err.message+'\\n将继续使用本地词库');
+    });
+}
 const personData={female:[{v:'yujie',t:'你的御姐人设（24岁/大波浪）'},{v:'glasses',t:'戴眼镜女生'},{v:'normal',t:'普通年轻女生'},{v:'college',t:'清纯女大学生'},{v:'ol',t:'职场OL姐姐'},{v:'sport',t:'运动风女生'},{v:'art',t:'文艺女青年'},{v:'sweet',t:'甜妹'},{v:'cool',t:'酷飒女生'},{v:'mature',t:'轻熟少妇感'},{v:'middleage',t:'中年女性（35-45岁）'},{v:'elderly',t:'老年女性（55岁+）'},{v:'custom',t:'自定义'}],male:[{v:'handsome',t:'帅气年轻男生'},{v:'glasses',t:'戴眼镜男生'},{v:'normal',t:'普通年轻男生'},{v:'college',t:'男大学生'},{v:'ol',t:'职场精英男'},{v:'sport',t:'运动型男'},{v:'art',t:'文艺男青年'},{v:'cool',t:'酷帅男生'},{v:'mature',t:'轻熟大叔感'},{v:'middleage',t:'中年男性（35-45岁）'},{v:'elderly',t:'老年男性（55岁+）'},{v:'sunshine',t:'阳光大男孩'},{v:'custom',t:'自定义'}]};
 const hairData={female:[{v:'wave',t:'乌黑及腰大波浪'},{v:'longstraight',t:'黑长直'},{v:'shoulder',t:'齐肩微卷发'},{v:'bob',t:'波波头短发'},{v:'ponytail',t:'高马尾'},{v:'halfbun',t:'半丸子头'},{v:'bangs',t:'齐刘海长直发'},{v:'twintail',t:'双马尾'},{v:'shorthair',t:'利落短发'},{v:'curly',t:'羊毛卷短发'},{v:'braid',t:'麻花辫'}],male:[{v:'short',t:'清爽短发'},{v:'undercut',t:'两边剃短'},{v:'curly',t:'自然卷发'},{v:'perm',t:'纹理烫'},{v:'long',t:'中长发（艺术感）'},{v:'buzz',t:'寸头'},{v:'bangs',t:'齐刘海短发'},{v:'slick',t:'大背头'},{v:'messy',t:'凌乱碎发'},{v:'dread',t:'脏辫'}]};
 const hairColorData=[{v:'black',t:'自然黑色'},{v:'darkbrown',t:'深棕色'},{v:'lightbrown',t:'浅棕色/栗色'},{v:'golden',t:'金黄色/亚麻色'},{v:'red',t:'酒红色/红棕色'},{v:'gray',t:'灰白色（中老年）'},{v:'white',t:'纯白色（老年）'},{v:'blackgray',t:'黑白夹杂（花白）'},{v:'highlights',t:'黑色挑染浅色'},{v:'dyed',t:'时尚染色（蓝/粉/紫）'}];
@@ -1080,7 +1107,7 @@ function init(){
   loadWords();
   setGender('female');
   document.getElementById('hairColor').innerHTML=hairColorData.map(h=>`<option value="${h.v}">${h.t}</option>`).join('');
-  buildFontGrid();buildBgGrid();buildLightGrid();buildQualityGrid();loadConfigList();updateComboPreview();
+  buildFontGrid();buildBgGrid();buildLightGrid();buildQualityGrid();loadConfigList();updateComboPreview();loadOnlineWords(false);
   document.getElementById('textInput').addEventListener('input',function(){document.getElementById('charCount').textContent=this.value.replace(/\n/g,'').length+'字';buildFontGrid();});
 }
 function setMode(m){currentMode=m;document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));document.getElementById('personSection').classList.toggle('hidden-section',m!=='person');document.getElementById('nopersonsSection').classList.toggle('hidden-section',m!=='nopersons');}

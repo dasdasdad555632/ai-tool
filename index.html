@@ -1235,10 +1235,17 @@ function getNegativePrompt(){
   const type=document.getElementById('personType').value,skin=selectedSkin,photoType=document.getElementById('photoType').value;
   let neg=[
     'AI脸','塑料皮肤','假脸','过度磨皮','皮肤过于光滑','完美对称脸','美颜滤镜','精修图','瓷娃娃皮肤',
-    '文字错误','错别字','乱码','文字扭曲','多余文字','缺少文字','文字模糊','文字无法辨认','文字重复',
-    '多余手指','缺少手指','畸形的手','多余肢体','身体比例错误','解剖结构错误','手指粘连','手指数量不对',
-    '低质量','模糊','像素化','压缩痕迹','水印','签名','logo','画面裁切','主体出框',
-    '卡通','动漫','3D渲染','插画','油画','素描','手绘','CG特效','数字艺术','二次元'
+    '蜡像感','硅胶质感','玩偶脸','充气娃娃','人皮面具','假人','模特人偶','芭比娃娃脸',
+    '死鱼眼','眼神空洞','没有眼神光','瞳孔无神','眼睛像玻璃珠','不眨眼',
+    '皮肤像蜡','皮肤像塑料','皮肤像硅胶','油光满面','不自然的光泽','皮肤没有纹理',
+    '文字错误','错别字','乱码','文字扭曲','多余文字','缺少文字','文字模糊','文字无法辨认','文字重复','文字印刷体','文字太工整',
+    '多余手指','缺少手指','畸形的手','多余肢体','身体比例错误','解剖结构错误','手指粘连','手指数量不对','手指太细','手指关节错误',
+    '低质量','模糊','像素化','压缩痕迹','水印','签名','logo','画面裁切','主体出框','过曝','欠曝',
+    '卡通','动漫','3D渲染','插画','油画','素描','手绘','CG特效','数字艺术','二次元','游戏画面','渲染图',
+    '不自然的皮肤','完美无瑕','没有毛孔','没有汗毛','没有细纹','皮肤像婴儿','过度美颜','瘦脸滤镜',
+    '头发像塑料','头发不自然','头发一缕一缕','假发','头发没有发丝感',
+    '纸板变形','纸板弯曲','纸板透视错误','纸板漂浮','纸板不平整',
+    '姿势僵硬','摆拍感太强','表情不自然','假笑','表情僵硬','肢体扭曲'
   ];
   if(skin==='hyperreal'||skin==='natural')neg.push('皮肤过于光滑','完美无瑕皮肤','没有毛孔');
   if(type==='elderly'||type==='middleage')neg.push('年轻的脸','没有皱纹','婴儿皮肤','光滑的脸');
@@ -1260,9 +1267,9 @@ function generate(){
   let commonScene='';
   if(currentMode==='person'){
     const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),poseDesc=getPoseDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
-    commonScene=`真实照片，${personDesc}，${clothingDesc}，${framingDesc}。${pronoun}站在室内，双手举着一张${getPaperDesc()}（A3大小），纸板位于画面中央，文字正对着镜头，${poseDesc}。`;
+    commonScene=`真实照片，${personDesc}，${clothingDesc}，${framingDesc}，头发有自然碎发和发丝纹理，发根到发尾有自然的颜色渐变和光泽，眼睛有清澈的眼神光和环境倒影，睫毛根根分明，眉毛有自然的毛流感，嘴唇有自然的唇纹和水润感，面部有细微的绒毛和皮肤纹理，${pronoun}站在室内，双手举着一张${getPaperDesc()}（A3大小），纸板位于画面中央，文字正对着镜头，手指自然弯曲握住纸板边缘，指甲有自然的甲床和半月痕，手部皮肤有纹理和青筋，${poseDesc}。`;
   }else{commonScene=`真实照片，${getNoPersonSceneDesc()}`;}
-  const commonTail=`${getBgDesc()}。${getLightDesc()}。居中构图，竖版，${getQualityDesc()}，${getPhotoTypeDesc()}，自然真实不做作，有生活气息，${ratio}竖幅`;
+  const commonTail=`${getBgDesc()}。${getLightDesc()}。居中构图，竖版，${getQualityDesc()}，${getPhotoTypeDesc()}，50mm标准镜头f/1.8大光圈全画幅拍摄，浅景深背景自然虚化，焦点精确落在人物面部和纸板文字上，自然色彩还原不夸张调色，保留真实肤色和环境色，头发丝根根分明有自然光泽，衣服面料纹理清晰可见，皮肤有自然的光影过渡和细微光泽，眼睛有眼神光和环境反射，画面有真实摄影的空气感和层次感，自然真实不做作，有生活气息，绝非AI生成的塑料感，${ratio}竖幅`;
   groups.forEach((group,idx)=>{
     const lines=group.split('\n').filter(l=>l.trim()),lc=lines.length;let tc='';
     lines.forEach((line,i)=>{const cn=['一','二','三','四','五','六','七','八','九','十'][i]||(i+1);tc+=`第${cn}行写着"${line.trim()}"，`;});

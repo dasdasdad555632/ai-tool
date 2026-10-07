@@ -6,53 +6,57 @@
 <title>AI真人举牌手写体提示词生成器 完全版</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#f5f0e8;color:#333;padding:20px;min-height:100vh}
-  .container{max-width:1100px;margin:0 auto;background:#fff;border-radius:16px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
-  h1{font-size:24px;color:#5c4033;margin-bottom:4px;text-align:center}
-  .subtitle{text-align:center;color:#8b6f47;font-size:13px;margin-bottom:20px}
-  .section{margin-bottom:22px}
-  .section-title{font-size:16px;font-weight:700;color:#5c4033;margin-bottom:12px;padding-left:12px;border-left:5px solid #c68b59;display:flex;justify-content:space-between;align-items:center}
-  label{display:block;font-size:12.5px;color:#666;margin-bottom:4px;font-weight:500}
-  textarea,input,select{width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:8px;font-size:13px;font-family:inherit;background:#fafafa;transition:border-color .2s}
-  textarea:focus,input:focus,select:focus{outline:none;border-color:#c68b59;background:#fff}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:linear-gradient(135deg,#0a0e1a 0%,#0d1525 50%,#0a1020 100%);color:#e2e8f0;padding:20px;min-height:100vh;position:relative;overflow-x:hidden}
+  body::before{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(circle at 20% 30%,rgba(0,212,255,.08) 0%,transparent 40%),radial-gradient(circle at 80% 70%,rgba(168,85,247,.06) 0%,transparent 40%);pointer-events:none;z-index:0}
+  .container{max-width:1100px;margin:0 auto;background:rgba(15,23,42,.85);backdrop-filter:blur(20px);border:1px solid rgba(100,200,255,.15);border-radius:20px;padding:28px;box-shadow:0 8px 40px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.05);position:relative;z-index:1}
+  h1{font-size:26px;background:linear-gradient(135deg,#00d4ff 0%,#4fc3f7 50%,#a855f7 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px;text-align:center;font-weight:800;letter-spacing:1px}
+  .subtitle{text-align:center;color:#64748b;font-size:12.5px;margin-bottom:22px;letter-spacing:.5px}
+  .section{margin-bottom:24px;padding:18px;background:rgba(30,41,59,.5);border:1px solid rgba(100,200,255,.1);border-radius:14px;position:relative}
+  .section::before{content:'';position:absolute;top:0;left:20px;right:20px;height:1px;background:linear-gradient(90deg,transparent,rgba(0,212,255,.3),transparent)}
+  .section-title{font-size:15px;font-weight:700;background:linear-gradient(90deg,#00d4ff,#4fc3f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:14px;padding-left:14px;border-left:3px solid #00d4ff;display:flex;justify-content:space-between;align-items:center;letter-spacing:.5px}
+  label{display:block;font-size:12px;color:#94a3b8;margin-bottom:5px;font-weight:500;letter-spacing:.3px}
+  textarea,input,select{width:100%;padding:9px 12px;border:1px solid rgba(100,200,255,.2);border-radius:10px;font-size:13px;font-family:inherit;background:rgba(15,23,42,.8);color:#e2e8f0;transition:all .25s}
+  textarea:focus,input:focus,select:focus{outline:none;border-color:#00d4ff;background:rgba(15,23,42,.95);box-shadow:0 0 0 3px rgba(0,212,255,.15)}
   textarea{min-height:80px;resize:vertical;line-height:1.6}
+  select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2300d4ff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
   .row{display:flex;gap:12px;flex-wrap:wrap}
   .col{flex:1;min-width:140px}
-  .btn{padding:10px 20px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
-  .btn-primary{background:#c68b59;color:#fff}.btn-primary:hover{background:#b07a4a}
-  .btn-secondary{background:#e8ddd0;color:#5c4033}.btn-secondary:hover{background:#d8c8b8}
-  .btn-danger{background:#e57373;color:#fff}.btn-danger:hover{background:#d32f2f}
-  .btn-small{padding:5px 10px;font-size:11px}
+  .btn{padding:10px 20px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;letter-spacing:.3px}
+  .btn-primary{background:linear-gradient(135deg,#00d4ff 0%,#0ea5e9 100%);color:#0a0e1a;box-shadow:0 2px 12px rgba(0,212,255,.3)}.btn-primary:hover{background:linear-gradient(135deg,#22d3ee 0%,#38bdf8 100%);box-shadow:0 4px 20px rgba(0,212,255,.5);transform:translateY(-1px)}
+  .btn-secondary{background:rgba(100,200,255,.1);color:#7dd3fc;border:1px solid rgba(100,200,255,.25)}.btn-secondary:hover{background:rgba(100,200,255,.2);border-color:#00d4ff;color:#00d4ff}
+  .btn-danger{background:linear-gradient(135deg,#f87171 0%,#ef4444 100%);color:#fff;box-shadow:0 2px 12px rgba(239,68,68,.3)}.btn-danger:hover{box-shadow:0 4px 20px rgba(239,68,68,.5);transform:translateY(-1px)}
+  .btn-small{padding:6px 12px;font-size:11px;border-radius:8px}
   .btn-group{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
-  .output-area{background:#2d3748;color:#e2e8f0;padding:18px;border-radius:10px;font-family:"Courier New",monospace;font-size:12px;line-height:1.75;white-space:pre-wrap;word-break:break-all;max-height:420px;overflow-y:auto;margin-top:8px}
-  .neg-area{background:#3d2828;color:#feb2b2;padding:14px;border-radius:10px;font-family:"Courier New",monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;word-break:break-all;margin-top:8px;border:1px solid #742a2a}
-  .output-item{margin-bottom:22px;padding-bottom:18px;border-bottom:1px dashed #4a5568}
+  .output-area{background:rgba(0,0,0,.4);color:#7dd3fc;padding:18px;border-radius:12px;font-family:"Courier New",monospace;font-size:12px;line-height:1.75;white-space:pre-wrap;word-break:break-all;max-height:420px;overflow-y:auto;margin-top:8px;border:1px solid rgba(0,212,255,.15)}
+  .neg-area{background:rgba(30,0,0,.4);color:#fca5a5;padding:14px;border-radius:12px;font-family:"Courier New",monospace;font-size:11.5px;line-height:1.7;white-space:pre-wrap;word-break:break-all;margin-top:8px;border:1px solid rgba(239,68,68,.25)}
+  .output-item{margin-bottom:22px;padding-bottom:18px;border-bottom:1px dashed rgba(100,200,255,.2)}
   .output-item:last-child{border-bottom:none;margin-bottom:0}
-  .output-label{color:#ecc94b;font-weight:600;margin-bottom:6px;font-size:13px}
-  .neg-label{color:#fc8181;font-weight:600;margin-bottom:4px;font-size:12px;margin-top:10px}
-  .copy-btn{padding:5px 12px;background:#4a5568;color:#fff;border:none;border-radius:6px;font-size:11px;cursor:pointer;margin-top:6px;margin-right:6px}
-  .copy-btn:hover{background:#718096}.copy-btn.copied{background:#48bb78}
-  .tip{background:#fff5e1;border-left:4px solid #ecc94b;padding:10px 14px;border-radius:0 8px 8px 0;font-size:12px;color:#744210;margin-top:12px;line-height:1.7}
-  .tip strong{color:#5c4033}
+  .output-label{color:#00d4ff;font-weight:600;margin-bottom:6px;font-size:13px}
+  .neg-label{color:#f87171;font-weight:600;margin-bottom:4px;font-size:12px;margin-top:10px}
+  .copy-btn{padding:6px 14px;background:rgba(0,212,255,.15);color:#00d4ff;border:1px solid rgba(0,212,255,.3);border-radius:8px;font-size:11px;cursor:pointer;margin-top:6px;margin-right:6px;transition:all .2s}
+  .copy-btn:hover{background:rgba(0,212,255,.3)}.copy-btn.copied{background:rgba(34,197,94,.2);color:#4ade80;border-color:rgba(34,197,94,.4)}
+  .tip{background:rgba(0,212,255,.08);border-left:3px solid #00d4ff;padding:10px 14px;border-radius:0 10px 10px 0;font-size:12px;color:#94a3b8;margin-top:12px;line-height:1.7}
+  .tip strong{color:#00d4ff}
   .preset-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-  .preset-btn{padding:5px 10px;background:#f0e6d8;color:#5c4033;border:1px solid #d4c4b0;border-radius:6px;font-size:11px;cursor:pointer}
-  .preset-btn:hover{background:#e8ddd0}
+  .preset-btn{padding:6px 12px;background:rgba(100,200,255,.08);color:#7dd3fc;border:1px solid rgba(100,200,255,.2);border-radius:8px;font-size:11px;cursor:pointer;transition:all .2s}
+  .preset-btn:hover{background:rgba(0,212,255,.2);color:#00d4ff;border-color:#00d4ff}
   .custom-input{margin-top:6px;display:none}.custom-input.show{display:block}
-  .mode-tabs{display:flex;gap:8px;margin-bottom:14px}
-  .mode-tab{flex:1;padding:12px;text-align:center;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;background:#fafafa;transition:all .2s}
-  .mode-tab.active{border-color:#c68b59;background:#fff5eb;color:#5c4033}
-  .mode-tab .mode-icon{font-size:20px;display:block;margin-bottom:2px}
-  .gender-tabs{display:flex;gap:8px;margin-bottom:12px}
-  .gender-tab{flex:1;padding:10px;text-align:center;border:2px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;background:#fafafa;transition:all .2s}
-  .gender-tab.active{border-color:#c68b59;background:#fff5eb;color:#5c4033}
-  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:8px;margin-top:8px}
-  .preview-card{border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;transition:all .25s;overflow:hidden;background:#fafafa}
-  .preview-card:hover{border-color:#c68b59;transform:translateY(-3px);box-shadow:0 6px 16px rgba(0,0,0,.12)}
-  .preview-card.active{border-color:#c68b59;box-shadow:0 0 0 2px rgba(198,139,89,.35)}
+  .mode-tabs{display:flex;gap:10px;margin-bottom:16px}
+  .mode-tab{flex:1;padding:14px;text-align:center;border:1px solid rgba(100,200,255,.2);border-radius:12px;cursor:pointer;font-size:14px;font-weight:600;background:rgba(30,41,59,.5);color:#64748b;transition:all .25s}
+  .mode-tab.active{border-color:#00d4ff;background:rgba(0,212,255,.1);color:#00d4ff;box-shadow:0 0 20px rgba(0,212,255,.2),inset 0 1px 0 rgba(0,212,255,.1)}
+  .mode-tab .mode-icon{font-size:22px;display:block;margin-bottom:3px}
+  .gender-tabs{display:flex;gap:8px;margin-bottom:14px}
+  .gender-tab{flex:1;padding:11px;text-align:center;border:1px solid rgba(100,200,255,.2);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;background:rgba(30,41,59,.5);color:#64748b;transition:all .25s}
+  .gender-tab.active{border-color:#a855f7;background:rgba(168,85,247,.1);color:#c084fc;box-shadow:0 0 16px rgba(168,85,247,.2)}
+  .preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(125px,1fr));gap:10px;margin-top:10px}
+  .preview-card{border:1px solid rgba(100,200,255,.15);border-radius:12px;cursor:pointer;transition:all .25s;overflow:hidden;background:rgba(15,23,42,.6)}
+  .preview-card:hover{border-color:#00d4ff;transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,212,255,.2)}
+  .preview-card.active{border-color:#00d4ff;box-shadow:0 0 0 2px rgba(0,212,255,.3),0 0 20px rgba(0,212,255,.25)}
   .preview-img{width:100%;height:92px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-  .preview-name{padding:6px 6px 5px;font-size:11px;text-align:center;color:#444;font-weight:600;line-height:1.3}
+  .preview-name{padding:7px 6px 6px;font-size:11px;text-align:center;color:#94a3b8;font-weight:600;line-height:1.3}
+  .preview-card.active .preview-name{color:#00d4ff}
   .bg-preview-icon{font-size:22px;position:absolute;bottom:5px;right:6px;z-index:3;opacity:.85;text-shadow:0 1px 3px rgba(0,0,0,.4);filter:drop-shadow(0 1px 2px rgba(0,0,0,.3))}
-  .font-preview-img{background:#fffdf8;height:92px;display:flex;align-items:center;justify-content:center;padding:4px}
+  .font-preview-img{background:rgba(255,255,255,.03);height:92px;display:flex;align-items:center;justify-content:center;padding:4px}
   .font-char{display:inline-block}
   /* 统一人像轮廓底图 - 用于光线和画质预览 */
   .portrait-base{position:absolute;inset:0;background:linear-gradient(180deg,#c8c0b4 0%,#a89888 55%,#8a7a6a 100%)}
@@ -128,7 +132,7 @@
   .quality-polaroid::before{content:'';position:absolute;inset:5px;background:transparent;border:4px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2);z-index:2}
   .quality-polaroid::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 50%,rgba(0,0,0,.15) 100%)}
   /* ===== 组合效果预览 ===== */
-  .combo-preview{width:100%;height:210px;border-radius:14px;overflow:hidden;position:relative;border:2px solid #e0d8cc;box-shadow:0 6px 20px rgba(0,0,0,.12);margin-top:4px}
+  .combo-preview{width:100%;height:210px;border-radius:14px;overflow:hidden;position:relative;border:1px solid rgba(100,200,255,.2);box-shadow:0 8px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.05);margin-top:8px}
   .combo-layer{position:absolute;inset:0}
   .combo-bg{z-index:1}
   .combo-portrait{z-index:2;display:flex;align-items:center;justify-content:center}
@@ -141,13 +145,16 @@
   .combo-portrait.skin-hyperreal::before{box-shadow:0 4px 14px rgba(0,0,0,.2),inset 0 0 0 1px rgba(120,80,50,.15)}
   .combo-light{z-index:3}
   .combo-label{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);z-index:5;background:rgba(0,0,0,.6);color:#fff;padding:5px 16px;border-radius:20px;font-size:12.5px;white-space:nowrap;backdrop-filter:blur(4px)}
-  .slider-group{margin-top:6px}
-  .slider-label{display:flex;justify-content:space-between;font-size:11.5px;color:#666;margin-bottom:3px}
-  input[type=range]{-webkit-appearance:none;height:5px;border-radius:3px;background:#e0e0e0;padding:0}
-  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:#c68b59;cursor:pointer}
-  .skin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:6px;margin-top:6px}
-  .skin-card{border:2px solid #e0e0e0;border-radius:8px;padding:8px 6px;cursor:pointer;transition:all .2s;text-align:center;font-size:11px;background:#fafafa}
-  .skin-card:hover{border-color:#c68b59;background:#fff5eb}.skin-card.active{border-color:#c68b59;background:#fff5eb}
+  .slider-group{margin-top:8px}
+  .slider-label{display:flex;justify-content:space-between;font-size:11.5px;color:#94a3b8;margin-bottom:5px}
+  .slider-label span:last-child{color:#00d4ff;font-weight:600}
+  input[type=range]{-webkit-appearance:none;height:4px;border-radius:2px;background:rgba(100,200,255,.15);padding:0;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#00d4ff,#0ea5e9);cursor:pointer;box-shadow:0 0 10px rgba(0,212,255,.5);border:2px solid rgba(255,255,255,.2);transition:box-shadow .2s}
+  input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 16px rgba(0,212,255,.7)}
+  .skin-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:8px;margin-top:8px}
+  .skin-card{border:1px solid rgba(100,200,255,.15);border-radius:10px;padding:10px 6px;cursor:pointer;transition:all .25s;text-align:center;font-size:11px;background:rgba(15,23,42,.5);color:#94a3b8}
+  .skin-card:hover{border-color:#00d4ff;background:rgba(0,212,255,.08);transform:translateY(-2px)}
+  .skin-card.active{border-color:#00d4ff;background:rgba(0,212,255,.12);color:#00d4ff;box-shadow:0 0 16px rgba(0,212,255,.2)}
   .skin-preview{width:38px;height:38px;border-radius:50%;margin:0 auto 5px;border:2px solid rgba(255,255,255,.7);box-shadow:0 2px 6px rgba(0,0,0,.18),inset 0 -2px 4px rgba(0,0,0,.1);position:relative;overflow:hidden}
   .skin-natural{background:radial-gradient(circle at 38% 32%,#ecc8a8 0%,#d4a880 60%,#c09070 100%)}
   .skin-natural::after{content:'';position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 25% 35%,rgba(255,255,255,.12) 1px,transparent 2px),radial-gradient(circle at 60% 55%,rgba(120,80,50,.08) 1px,transparent 2px);background-size:6px 6px,7px 7px}
@@ -231,16 +238,56 @@
   .btn-del{background:#fed7d7;color:#c53030}
   .admin-hint{font-size:11px;color:#999;margin-top:8px;line-height:1.6}
   .url-config{font-size:11px;color:#8b6f47;background:#fffaf0;padding:8px;border-radius:6px;margin-top:8px;word-break:break-all}
-  .paper-preview{margin-top:10px;background:#f5f0e8;padding:14px;border-radius:10px;text-align:center}
-  .paper-preview-board{display:inline-block;background:#fdf8f0;padding:20px 24px;border-radius:4px;box-shadow:2px 3px 8px rgba(0,0,0,.15);min-width:240px;max-width:100%;position:relative}
-  .paper-preview-text{font-family:'Comic Sans MS','KaiTi',cursive;color:#333;font-size:18px;line-height:2;text-align:left;white-space:pre-wrap;word-break:break-all}
-  .paper-preview-label{font-size:11px;color:#8b6f47;margin-bottom:6px}
+  .paper-preview{margin-top:12px;background:rgba(0,0,0,.3);padding:16px;border-radius:14px;text-align:center;border:1px solid rgba(100,200,255,.1)}
+  .paper-preview-board{display:inline-block;padding:20px 24px;border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.1);min-width:240px;max-width:100%;position:relative;transition:background .3s}
+  .paper-preview-text{font-family:'Comic Sans MS','KaiTi',cursive;font-size:18px;line-height:2;text-align:left;white-space:pre-wrap;word-break:break-all;transition:color .3s}
+  .paper-preview-label{font-size:11px;color:#64748b;margin-bottom:8px;letter-spacing:.5px}
   .seed-box{margin-top:8px;padding:10px;background:#faf5ee;border-radius:8px;border:1px dashed #d4c4b0}
   .seed-box textarea{min-height:50px;font-size:11.5px;background:#fff}
   .seed-actions{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
   .config-bar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
   .config-bar select{flex:1;min-width:150px}
   .hidden-section{display:none}
+  /* ===== 手机端适配 ===== */
+  @media (max-width:768px){
+    body{padding:10px}
+    .container{padding:16px;border-radius:14px}
+    h1{font-size:20px}
+    .subtitle{font-size:11px;margin-bottom:16px}
+    .section{padding:14px;margin-bottom:16px;border-radius:12px}
+    .section-title{font-size:14px;padding-left:10px}
+    .row{gap:8px}
+    .col{min-width:calc(50% - 4px)}
+    .preview-grid{grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+    .preview-img{height:78px}
+    .preview-name{font-size:10px;padding:5px 4px}
+    .skin-grid{grid-template-columns:repeat(auto-fill,minmax(95px,1fr));gap:6px}
+    .skin-card{padding:8px 4px;font-size:10px}
+    .skin-preview{width:32px;height:32px}
+    .combo-preview{height:160px}
+    .paper-preview-board{padding:14px 16px;min-width:200px}
+    .paper-preview-text{font-size:16px}
+    .output-area{font-size:11px;padding:14px;max-height:350px}
+    .neg-area{font-size:10.5px;padding:12px}
+    .btn{padding:9px 16px;font-size:12px}
+    .btn-group{gap:8px}
+    .mode-tab{padding:10px;font-size:13px}
+    .mode-tab .mode-icon{font-size:18px}
+    .gender-tab{padding:9px;font-size:12px}
+    textarea{min-height:70px;font-size:12px}
+    textarea,input,select{padding:8px 10px;font-size:12px}
+    .slider-label{font-size:10.5px}
+    input[type=range]::-webkit-slider-thumb{width:18px;height:18px}
+    .tip{font-size:11px;padding:8px 12px}
+    .preset-btn{padding:5px 10px;font-size:10px}
+  }
+  @media (max-width:480px){
+    .col{min-width:100%}
+    .preview-grid{grid-template-columns:repeat(2,1fr)}
+    .skin-grid{grid-template-columns:repeat(2,1fr)}
+    .combo-preview{height:140px}
+    h1{font-size:18px}
+  }
 </style>
 </head>
 <body>
@@ -502,8 +549,8 @@
   <div class="section">
     <div class="section-title">5. 笔 / 纸板 / 颜色</div>
     <div class="row">
-      <div class="col"><label>笔的类型</label>
-        <select id="penType">
+      <div class="col"><label>笔的类型 <span id="penPreview" style="display:inline-block;width:30px;height:4px;background:#222;border-radius:2px;vertical-align:middle;margin-left:4px"></span></label>
+        <select id="penType" onchange="updatePaperPreview();updatePenPreview()">
           <option value="thickmarker">粗头马克笔（最清晰）</option>
           <option value="thinmarker">细头马克笔</option>
           <option value="gel05">中性笔0.5mm</option>
@@ -519,8 +566,8 @@
           <option value="crayon">蜡笔</option>
         </select>
       </div>
-      <div class="col"><label>纸板类型</label>
-        <select id="paperType">
+      <div class="col"><label>纸板类型 <span id="paperPreviewIcon" style="display:inline-block;width:16px;height:12px;background:#f5f0e6;border-radius:2px;vertical-align:middle;margin-left:4px;border:1px solid rgba(0,0,0,.1)"></span></label>
+        <select id="paperType" onchange="updatePaperPreview();updatePaperIcon()">
           <option value="cardboard">米白色硬纸板</option>
           <option value="whitea3">白色A3打印纸</option>
           <option value="kraft">牛皮纸</option>
@@ -532,8 +579,8 @@
           <option value="newspaper">报纸质感</option>
         </select>
       </div>
-      <div class="col"><label>文字颜色</label>
-        <select id="inkColor">
+      <div class="col"><label>文字颜色 <span id="inkPreview" style="display:inline-block;width:12px;height:12px;background:#222;border-radius:50%;vertical-align:middle;margin-left:4px;border:1px solid rgba(255,255,255,.2)"></span></label>
+        <select id="inkColor" onchange="updatePaperPreview();updateInkPreview()">
           <option value="black">黑色</option>
           <option value="darkgray">深灰色（更自然）</option>
           <option value="darkblue">深蓝色</option>
@@ -621,6 +668,7 @@
   </div>
   <div class="btn-group">
     <button class="btn btn-primary" onclick="generate()">✨ 生成提示词（含负面词）</button>
+    <button class="btn btn-secondary" onclick="generateBatch(3)">📸 批量生成3组（不同角度）</button>
     <button class="btn btn-secondary" onclick="copyAll()">📋 复制全部</button>
     <button class="btn btn-secondary" onclick="clearAll()">🗑️ 清空</button>
   </div>
@@ -1107,7 +1155,7 @@ function init(){
   loadWords();
   setGender('female');
   document.getElementById('hairColor').innerHTML=hairColorData.map(h=>`<option value="${h.v}">${h.t}</option>`).join('');
-  buildFontGrid();buildBgGrid();buildLightGrid();buildQualityGrid();loadConfigList();updateComboPreview();loadOnlineWords(false);
+  buildFontGrid();buildBgGrid();buildLightGrid();buildQualityGrid();loadConfigList();updateComboPreview();loadOnlineWords(false);updatePenPreview();updatePaperIcon();updateInkPreview();
   document.getElementById('textInput').addEventListener('input',function(){document.getElementById('charCount').textContent=this.value.replace(/\n/g,'').length+'字';buildFontGrid();});
 }
 function setMode(m){currentMode=m;document.querySelectorAll('.mode-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));document.getElementById('personSection').classList.toggle('hidden-section',m!=='person');document.getElementById('nopersonsSection').classList.toggle('hidden-section',m!=='nopersons');}
@@ -1178,6 +1226,48 @@ function updatePaperPreview(){
     lineHtml+='</div>';html+=lineHtml;
   });
   document.getElementById('paperPreviewText').innerHTML=html;
+  // 纸板真实纹理
+  const paperType=document.getElementById('paperType').value;
+  const board=document.querySelector('.paper-preview-board');
+  const paperBg={
+    cardboard:'linear-gradient(135deg,#f5f0e6 0%,#ebe4d4 100%)',
+    kraft:'linear-gradient(135deg,#c8a878 0%,#b89860 100%)',
+    blackboard:'linear-gradient(135deg,#1a3a2a 0%,#0f2818 100%)',
+    corrugated:'repeating-linear-gradient(90deg,#e8ddd0 0px,#e0d4c4 2px,#e8ddd0 4px,#ddd0c0 6px)',
+    notebook:'linear-gradient(180deg,#fdf8f0 0%,#faf4e8 100%)',
+    letter:'linear-gradient(135deg,#f5ede0 0%,#ebe0cc 100%)',
+    draft:'linear-gradient(135deg,#f0ebe0 0%,#e5ddd0 100%)',
+    newspaper:'linear-gradient(135deg,#e8e4dc 0%,#ddd8cc 100%)'
+  };
+  if(board){
+    board.style.background=paperBg[paperType]||paperBg.cardboard;
+    if(paperType==='notebook'){board.style.backgroundImage='linear-gradient(180deg,#fdf8f0 0%,#faf4e8 100%),repeating-linear-gradient(0deg,transparent 0px,transparent 27px,rgba(100,150,200,.2) 27px,rgba(100,150,200,.2) 28px)';board.style.backgroundBlendMode='normal';}
+    if(paperType==='letter'){board.style.backgroundImage='linear-gradient(135deg,#f5ede0 0%,#ebe0cc 100%),repeating-linear-gradient(0deg,transparent 0px,transparent 30px,rgba(180,140,100,.15) 30px,rgba(180,140,100,.15) 31px)';}
+    if(paperType==='draft'){board.style.boxShadow='0 8px 24px rgba(0,0,0,.4),inset 0 0 30px rgba(0,0,0,.08)';board.style.transform='rotate(-0.5deg)';}
+    else{board.style.transform='rotate(0)';}
+  }
+}
+function updatePenPreview(){
+  const type=document.getElementById('penType').value;
+  const el=document.getElementById('penPreview');if(!el)return;
+  const widths={thickmarker:6,thinmarker:3,gel05:3,gel038:2,fountain:4,ballpoint:2,pencil2b:3,brushbig:8,brushsmall:3,xiuli:4,brushpen:5,highlighter:7,crayon:5};
+  const color=document.getElementById('inkColor').value;
+  const colorMap={black:'#222',darkgray:'#444',darkblue:'#1a365d',red:'#c53030',blue:'#2b6cb0',green:'#276749',purple:'#553c9a',brown:'#744210',pink:'#d53f8c',gold:'#b7791f',white:'#e2e8f0'};
+  el.style.width=(24+widths[type])+'px';el.style.height=widths[type]+'px';el.style.background=colorMap[color]||'#222';
+  if(type==='pencil2b')el.style.background='linear-gradient(90deg,#888,#666)';
+  if(type==='highlighter')el.style.opacity='.6';
+}
+function updatePaperIcon(){
+  const type=document.getElementById('paperType').value;
+  const el=document.getElementById('paperPreviewIcon');if(!el)return;
+  const bg={cardboard:'#f5f0e6',whitea3:'#fff',kraft:'#c8a878',blackboard:'#1a3a2a',corrugated:'repeating-linear-gradient(90deg,#e8ddd0,#ddd0c0 3px)',notebook:'#fdf8f0',letter:'#f5ede0',draft:'#f0ebe0',newspaper:'#e8e4dc'};
+  el.style.background=bg[type]||bg.cardboard;
+}
+function updateInkPreview(){
+  const color=document.getElementById('inkColor').value;
+  const el=document.getElementById('inkPreview');if(!el)return;
+  const colorMap={black:'#222',darkgray:'#444',darkblue:'#1a365d',red:'#c53030',blue:'#2b6cb0',green:'#276749',purple:'#553c9a',brown:'#744210',pink:'#d53f8c',gold:'#b7791f',white:'#e2e8f0'};
+  el.style.background=colorMap[color]||'#222';
 }
 function generateSeed(){
   const isMale=currentGender==='male';
@@ -1310,6 +1400,51 @@ function generate(){
       <button class="copy-btn" onclick="copyText(this,'.neg-text')">复制负面词</button>`;
     outArea.appendChild(item);
   });
+  outSec.scrollIntoView({behavior:'smooth'});
+}
+function generateBatch(count){
+  const rawText=document.getElementById('textInput').value.trim();
+  if(!rawText){alert('请先输入文字内容');return;}
+  const oldPose=document.getElementById('pose').value,oldEye=document.getElementById('eyeline').value,oldFrame=document.getElementById('framing').value;
+  const angles=[
+    {name:'正面平视·看镜头',pose:'lookcamera',eye:'camera',frame:'fullbody',desc:'正面平视拍摄，人物正对镜头，眼神看向镜头，全身入镜，纸板端正举在胸前'},
+    {name:'45度侧面·看纸板',pose:'lookdown',eye:'down',frame:'midshot',desc:'45度侧面角度拍摄，人物微微侧身，低头看着手里的纸板，中景构图，自然不摆拍'},
+    {name:'微俯拍·近景',pose:'lookdown',eye:'down',frame:'closeup',desc:'略微俯拍角度，近景构图，人物低头看纸板，纸板和上半身占据画面主要部分，更有生活感'}
+  ];
+  const outSec=document.getElementById('outputSection'),outArea=document.getElementById('outputArea');
+  outArea.innerHTML='';outSec.style.display='block';
+  const groups=rawText.split(/\n\s*\n/).filter(g=>g.trim()),tool=document.getElementById('aiTool').value,ratio=document.getElementById('ratio').value;
+  for(let a=0;a<count;a++){
+    const ang=angles[a%angles.length];
+    document.getElementById('pose').value=ang.pose;
+    document.getElementById('eyeline').value=ang.eye;
+    document.getElementById('framing').value=ang.frame;
+    let commonScene='';
+    if(currentMode==='person'){
+      const personDesc=getPersonDesc(),clothingDesc=getClothingDesc(),framingDesc=getFramingDesc(),pronoun=currentGender==='male'?'他':'她';
+      commonScene=`真实照片，${personDesc}，${clothingDesc}，${framingDesc}，头发有自然碎发和发丝纹理，发根到发尾有自然的颜色渐变和光泽，眼睛有清澈的眼神光和环境倒影，睫毛根根分明，眉毛有自然的毛流感，嘴唇有自然的唇纹和水润感，面部有细微的绒毛和皮肤纹理，${pronoun}站在室内，双手举着一张${getPaperDesc()}（A3大小），纸板位于画面中央，文字正对着镜头，手指自然弯曲握住纸板边缘，指甲有自然的甲床和半月痕，手部皮肤有纹理和青筋，${ang.desc}。`;
+    }else{commonScene=`真实照片，${getNoPersonSceneDesc()}`;}
+    const commonTail=`${getBgDesc()}。${getLightDesc()}。${ang.desc}，竖版，${getQualityDesc()}，${getPhotoTypeDesc()}，50mm标准镜头f/1.8大光圈全画幅拍摄，浅景深背景自然虚化，焦点精确落在人物面部和纸板文字上，自然色彩还原不夸张调色，保留真实肤色和环境色，头发丝根根分明有自然光泽，衣服面料纹理清晰可见，皮肤有自然的光影过渡和细微光泽，眼睛有眼神光和环境反射，画面有真实摄影的空气感和层次感，自然真实不做作，有生活气息，绝非AI生成的塑料感，${ratio}竖幅`;
+    groups.forEach((group,idx)=>{
+      const lines=group.split('\n').filter(l=>l.trim()),lc=lines.length;let tc='';
+      lines.forEach((line,i)=>{const cn=['一','二','三','四','五','六','七','八','九','十'][i]||(i+1);tc+=`第${cn}行写着"${line.trim()}"，`;});
+      let ld='';
+      if(lc>1){const pos=['偏上','往下偏左','居中','偏右','明显偏向右下角','再往下偏左','居中偏上'];lines.forEach((l,i)=>{ld+=`第${i+1}行${pos[i%pos.length]}，`;});}
+      const textPart=`纸板上用${getPenDesc()}手写了${lc}行中文文字，${getFontStyleDesc()}，完全模仿真人随手写的效果，${tc}真人手写核心特征：每个字下笔力度都不一样，有的字重有的字轻；字的大小差异明显，每个字大小都不同；每个字倾斜角度和方向随机不同；排列非常随意，每行高低左右错开，${ld}行间距不统一有的宽有的窄；字间距不均匀有的挤在一起有的分开很远；笔画有粗细变化，起笔重收笔轻，有真实笔触和毛边；墨水浓度有变化，有飞白断墨和洇染；${getHandwritingDetail()}整体看起来就是普通人随手写的，完全不整齐不工整，有书写节奏和呼吸感，没有任何印刷体或AI生成的规整感。`;
+      let prompt=adaptPrompt(commonScene+textPart+commonTail,tool);
+      const negPrompt=getNegativePrompt();
+      const item=document.createElement('div');item.className='output-item';
+      item.innerHTML=`<div class="output-label">📸 第${a+1}组·${ang.name}（${lc}行 · ${currentMode==='person'?'真人出镜':'不出镜'}）</div>
+        <div class="output-label" style="color:#90cdf4;font-size:11px">⬇️ 正向提示词（Positive Prompt）</div>
+        <div class="output-area prompt-text">${prompt}</div>
+        <button class="copy-btn" onclick="copyText(this,'.prompt-text')">复制正向词</button>
+        <div class="neg-label">⬇️ 负面提示词（Negative Prompt）— 复制到AI工具的负面框里</div>
+        <div class="neg-area neg-text">${negPrompt}</div>
+        <button class="copy-btn" onclick="copyText(this,'.neg-text')">复制负面词</button>`;
+      outArea.appendChild(item);
+    });
+  }
+  document.getElementById('pose').value=oldPose;document.getElementById('eyeline').value=oldEye;document.getElementById('framing').value=oldFrame;
   outSec.scrollIntoView({behavior:'smooth'});
 }
 function copyText(btn,selector){const text=btn.parentElement.querySelector(selector).textContent;navigator.clipboard.writeText(text).then(()=>{btn.textContent='✅已复制';btn.classList.add('copied');setTimeout(()=>{btn.textContent=selector.includes('neg')?'复制负面词':'复制正向词';btn.classList.remove('copied');},2000);});}
